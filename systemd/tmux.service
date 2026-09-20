@@ -1,0 +1,16 @@
+[Unit]
+Description=tmux default session (detached)
+Documentation=man:tmux(1)
+
+[Service]
+# oneshot+RemainAfterExit: forking hangs when a tmux server already exists
+Type=oneshot
+RemainAfterExit=yes
+Environment=DISPLAY=:0
+# Bare name: systemd searches /usr/local/bin then /usr/bin (source build or apt)
+ExecStart=tmux new-session -A -d -s main
+ExecStop=-%h/.tmux/plugins/tmux-resurrect/scripts/save.sh
+ExecStop=tmux kill-server
+
+[Install]
+WantedBy=default.target

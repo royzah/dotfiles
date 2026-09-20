@@ -1,0 +1,74 @@
+# Machine-local hosts (work infrastructure, client servers) live outside this
+# repo so it stays employer-agnostic. Create ~/.ssh/config.local, chmod 600.
+# Include must come first: ssh takes the first value it sees for each keyword.
+Include ~/.ssh/config.local
+
+# ==============================================================================
+# SSH Config - Royyan
+# ==============================================================================
+
+# --- Bitwarden ssh-agent (uncomment after enabling it in the desktop app) ---
+# Host *
+#     IdentityAgent ~/.bitwarden-ssh-agent.sock
+
+# --- Global defaults ---
+Host *
+    # Reuse connections (massive speedup for git, scp, rsync)
+    ControlMaster auto
+    ControlPath ~/.ssh/sockets/%r@%h-%p
+    ControlPersist 600
+
+    # Keep connections alive (prevent drops behind NATs/firewalls)
+    ServerAliveInterval 30
+    ServerAliveCountMax 5
+
+    # Security defaults
+    AddKeysToAgent yes
+    IdentitiesOnly yes
+
+    # Faster connections
+    Compression yes
+
+    # Don't hash known hosts (easier to debug)
+    HashKnownHosts no
+
+# --- GCP VMs (via gcloud) ---
+Host gcp-*
+    IdentityFile ~/.ssh/google_compute_engine
+    User royzah
+    StrictHostKeyChecking accept-new
+
+# --- GitHub ---
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519
+    PreferredAuthentications publickey
+
+# --- Embedded / lab devices (throwaway host keys, fast timeouts) ---
+Host rpi-* board-* dev-*
+    User root
+    StrictHostKeyChecking accept-new
+    UserKnownHostsFile /dev/null
+    LogLevel ERROR
+    ConnectTimeout 5
+    IdentityFile ~/.ssh/id_ed25519
+
+# --- Jump host template ---
+# Host bastion
+#     HostName bastion.example.com
+#     User royzah
+#     IdentityFile ~/.ssh/id_ed25519
+#
+# Host internal-*
+#     ProxyJump bastion
+#     User royzah
+
+# --- AWS SSM tunnel template (no public port 22, IAM auth under SSH key) ---
+# Requires: apt install session-manager-plugin, and an AWS_PROFILE with SSM access.
+# Host myserver
+#     HostName i-0123456789abcdef0
+#     User ubuntu
+#     IdentityFile ~/.ssh/id_ed25519
+#     ProxyCommand sh -c "AWS_PROFILE=myprofile aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
+#     StrictHostKeyChecking accept-new

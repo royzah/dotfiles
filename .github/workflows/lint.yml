@@ -1,0 +1,44 @@
+name: lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install linters
+        run: sudo apt-get update && sudo apt-get install -y shellcheck zsh lua-check jq
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: shellcheck
+        run: shellcheck -x bootstrap.sh bootstrap-user.sh install.sh setup-system.sh bin/*.sh claude/statusline.sh claude/hooks/*.sh
+
+      - name: shfmt
+        run: docker run --rm -v "$PWD:/work" -w /work mvdan/shfmt:latest -d bootstrap.sh install.sh setup-system.sh bin/ claude/
+
+      - name: zsh syntax
+        run: zsh -n zshrc
+
+      - name: luacheck
+        run: luacheck nvim/ --quiet
+
+      - name: stylua
+        uses: JohnnyMorganz/stylua-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: latest
+          args: --config-path nvim/stylua.toml --check nvim/
+
+      - name: markdownlint
+        run: npx markdownlint-cli README.md NVIM_GUIDE.md WINDOWS_GUIDE.md templates/CLAUDE.md claude/CLAUDE.md
+
+      - name: json
+        run: jq empty claude/settings.json nvim/lazyvim.json

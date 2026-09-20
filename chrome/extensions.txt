@@ -1,0 +1,16 @@
+# Chrome extensions force-installed via managed policy by setup-system.sh.
+# Format: <extension-id>  # Name
+# Find an id in the Web Store URL: chromewebstore.google.com/detail/<name>/<id>
+#
+# Note: force-installed extensions cannot be removed from within Chrome.
+# Delete the line here and rerun setup-system.sh to drop one.
+
+nngceckbapebfimnlniiiahkandclblb  # Bitwarden Password Manager
+epcnnfbjfcgphgdmggkamkmgojdagdnn  # uBlock Origin
+pkehgijcmpdhfbdbbnkijodmdjhbjlgp  # Privacy Badger
+dhdgffkkebhmkfjojejmpbldmpobfkfo  # Tampermonkey
+fmkadmapgofadopljbjfkapdkoienihi  # React Developer Tools
+oicakdoenlelpjnkoljnaakdofplkgnd  # Tree Style Tab
+mafbdhjdkjnoafhfelkjpchpaepjknad  # Morpheon Dark
+ghbmnnjooekpmoecnnnilnnbdlolhkhi  # Google Docs Offline
+mdanidgdpmkimeiiojknlnekblgmpdll  # Boomerang for Gmail

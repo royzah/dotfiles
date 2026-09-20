@@ -1,0 +1,26 @@
+# CLI tools for machines without Homebrew or sudo (shared build servers).
+# bootstrap-user.sh links this to ~/.config/mise/conf.d/cli.toml; the desktop
+# gets the same tools from Homebrew instead. Prebuilt binaries only.
+[tools]
+neovim = "latest"
+tmux = "latest"
+starship = "latest"
+fzf = "latest"
+zoxide = "latest"
+eza = "latest"
+bat = "latest"
+fd = "latest"
+ripgrep = "latest"
+delta = "latest"
+lazygit = "latest"
+direnv = "latest"
+# Static musl build: the default gnu one needs glibc 2.38+, newer than most build servers
+"ubi:atuinsh/atuin" = { version = "latest", matching_regex = "^atuin-[^s].*musl" }
+just = "latest"
+jq = "latest"
+yq = "latest"
+btop = "latest"
+dust = "latest"
+gh = "latest"
+shellcheck = "latest"
+shfmt = "latest"

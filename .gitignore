@@ -1,0 +1,7 @@
+.claude/
+
+# Downloaded artifacts
+*.deb
+*.zip
+*.tar.gz
+*.AppImage

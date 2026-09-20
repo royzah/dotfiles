@@ -1,0 +1,219 @@
+{
+  // --- Telemetry ---
+  "telemetry.telemetryLevel": "off",
+  "redhat.telemetry.enabled": false,
+
+  // --- Editor ---
+  "editor.formatOnSave": true,
+  "editor.stickyScroll.enabled": false,
+  "editor.codeLens": false,
+  "editor.renderWhitespace": "boundary",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+  "editor.minimap.enabled": false,
+  "editor.cursorBlinking": "smooth",
+  "editor.cursorSmoothCaretAnimation": "on",
+  "editor.smoothScrolling": true,
+  "editor.linkedEditing": true,
+  "editor.tabSize": 2,
+  "editor.detectIndentation": true,
+  "editor.trimAutoWhitespace": true,
+  "editor.fontFamily": "'Hack Nerd Font', 'Droid Sans Mono', monospace",
+  "editor.fontSize": 14,
+  "editor.fontLigatures": true,
+
+  // --- Workbench ---
+  "workbench.editor.enablePreview": false,
+  "workbench.startupEditor": "none",
+  "workbench.tree.indent": 16,
+  "workbench.editor.limit.enabled": true,
+  "workbench.editor.limit.value": 10,
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "explorer.compactFolders": false,
+
+  // --- Files ---
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "files.autoSave": "onFocusChange",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/venv": true,
+    "**/__pycache__": true,
+    "**/.nix-profile": true,
+    "**/.nix-defexpr": true,
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/venv/**": true,
+    "**/.git/objects/**": true,
+    "**/build/**": true,
+    "**/dist/**": true,
+    "**/result/**": true,
+    "**/target/**": true,
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/venv": true,
+    "**/__pycache__": true,
+    "**/build": true,
+    "**/dist": true,
+    "**/result": true,
+    "**/target": true,
+  },
+
+  // --- Terminal ---
+  "terminal.integrated.defaultProfile.linux": "zsh",
+  "terminal.integrated.fontFamily": "'Hack Nerd Font Mono'",
+  "terminal.integrated.scrollback": 10000,
+
+  // --- Formatters per language ---
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[dockercompose]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[github-actions-workflow]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[svelte]": {
+    "editor.defaultFormatter": "svelte.svelte-vscode",
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.tabSize": 4,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit",
+    },
+  },
+  "[go]": {
+    "editor.defaultFormatter": "golang.go",
+    "editor.tabSize": 4,
+  },
+  "[c]": {
+    "editor.defaultFormatter": "ms-vscode.cpptools",
+    "editor.tabSize": 4,
+  },
+  "[cpp]": {
+    "editor.defaultFormatter": "ms-vscode.cpptools",
+    "editor.tabSize": 4,
+  },
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer",
+    "editor.tabSize": 4,
+  },
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml",
+  },
+  "[shellscript]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format",
+    "editor.tabSize": 4,
+  },
+
+  // --- Git ---
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "git.enableSmartCommit": true,
+
+  // --- JavaScript / TypeScript ---
+  "js/ts.updateImportsOnFileMove.enabled": "always",
+
+  // --- Python (Ruff + Pylance) ---
+  "python.languageServer": "Pylance",
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.exclude": [
+    "**/__pycache__",
+    "**/node_modules",
+    "**/venv",
+    "**/build",
+    "**/dist",
+    "**/.*",
+  ],
+  "python.analysis.indexing": false,
+
+  // --- Go ---
+  "go.toolsManagement.autoUpdate": true,
+
+  // --- Svelte ---
+  "svelte.enable-ts-plugin": true,
+
+  // --- Kubernetes ---
+  "vs-kubernetes": {
+    "vscode-kubernetes.minikube-path-linux": "/home/royzah/.local/state/vs-kubernetes/tools/minikube/linux-amd64/minikube",
+    "vscode-kubernetes.kubectl-path-linux": "/home/royzah/.local/state/vs-kubernetes/tools/kubectl/kubectl",
+    "vscode-kubernetes.helm-path-linux": "/home/royzah/.local/state/vs-kubernetes/tools/helm/linux-amd64/helm",
+  },
+
+  // --- CMake ---
+  "cmake.pinnedCommands": [
+    "workbench.action.tasks.configureTaskRunner",
+    "workbench.action.tasks.runTask",
+  ],
+  "makefile.configureOnOpen": true,
+
+  // --- Docker ---
+  "docker.extension.enableComposeLanguageServer": false,
+
+  // --- Extensions ---
+  "extensions.autoUpdate": "on",
+  "extensions.autoCheckUpdates": true,
+  "remote.defaultExtensionsIfInstalledLocally": [
+    "anthropic.claude-code",
+    "GitHub.vscode-pull-request-github",
+  ],
+
+  // --- AI / Claude Code ---
+  "claudeCode.preferredLocation": "panel",
+  "chat.instructionsFilesLocations": {
+    ".github/instructions": true,
+  },
+
+  // --- LLDB ---
+  "lldb.suppressUpdateNotifications": true,
+
+  // --- Schema ---
+  "json.schemaDownload.enable": true,
+  "yaml.disableSchemaDetection": [
+    "**/.github/workflows/*.yml",
+    "**/.github/workflows/*.yaml",
+    "**/.gitea/workflows/*.yml",
+    "**/.gitea/workflows/*.yaml",
+    "**/.forgejo/workflows/*.yml",
+    "**/.forgejo/workflows/*.yaml",
+  ],
+}

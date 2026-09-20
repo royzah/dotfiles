@@ -1,0 +1,18 @@
+# Machine-generated file - use "minicom -s" to change parameters.
+pu port             /dev/ttyUSB0
+pu baudrate         115200
+pu bits             8
+pu parity           N
+pu stopbits         1
+pu rtscts           No
+pu xonxoff          No
+pu linewrap         Yes
+pu addcarreturn     No
+pu logfname         /tmp/minicom.log
+pu logconn          Yes
+pu mfcolor          CYAN
+pu mbcolor          BLACK
+pu tfcolor          GREEN
+pu tbcolor          BLACK
+pu sfcolor          BLACK
+pu sbcolor          CYAN

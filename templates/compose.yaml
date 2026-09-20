@@ -1,0 +1,53 @@
+# Starter dev services - uncomment what you need.
+# Versions = latest stable as of Aug 2026. Bump majors deliberately.
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: app
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:8
+    ports:
+      - "6379:6379"
+
+  # Valkey: BSD-licensed Redis fork (Linux Foundation), wire-compatible drop-in
+  # valkey:
+  #   image: valkey/valkey:9
+  #   ports:
+  #     - "6379:6379"
+
+  # nats:
+  #   image: nats:2.14
+  #   ports:
+  #     - "4222:4222"
+  #     - "8222:8222"
+
+  # mosquitto:
+  #   image: eclipse-mosquitto:2.1
+  #   ports:
+  #     - "1883:1883"
+
+  # Single-node KRaft, no ZooKeeper since Kafka 4.x
+  # kafka:
+  #   image: apache/kafka:4.2.0
+  #   ports:
+  #     - "9092:9092"
+
+  # S3-compatible object storage: MinIO was archived Apr 2026 - prefer
+  # SeaweedFS or Garage for a maintained local S3.
+  # seaweedfs:
+  #   image: chrislusf/seaweedfs
+  #   command: server -s3
+  #   ports:
+  #     - "8333:8333"
+
+volumes:
+  pgdata:

@@ -1,0 +1,18 @@
+[Unit]
+Description=Claude Code Remote Control
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/claude remote-control --name "dev-session"
+# Home-directory trust is never saved; must run from a trusted project dir
+# (run `claude` there once to accept the trust dialog before enabling)
+WorkingDirectory=%h/Code/dotfiles
+Restart=on-failure
+RestartSec=5
+Environment=HOME=%h
+Environment=PATH=%h/.local/bin:%h/bin:/usr/local/bin:/usr/bin:/bin
+
+[Install]
+WantedBy=default.target

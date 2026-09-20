@@ -1,0 +1,10 @@
+[Unit]
+Description=Restic backup of home data
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/bin/backup.sh run
+Nice=10
+IOSchedulingClass=idle

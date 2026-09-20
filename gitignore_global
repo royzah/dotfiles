@@ -1,0 +1,34 @@
+# Secrets
+.secrets.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/settings.json
+*.swp
+*.swo
+*~
+
+# Languages / Frameworks
+node_modules/
+__pycache__/
+*.pyc
+.terraform/
+*.tfstate
+*.tfstate.backup
+.direnv/
+
+# Debug
+*.log
+
+**/.claude/settings.local.json
+.zshrc.local
+CLAUDE.local.md
+AGENTS.local.md

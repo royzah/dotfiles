@@ -1,0 +1,233 @@
+# =============================================================================
+# Ghostty — Catppuccin Mocha, tuned for tmux + nvim
+# -----------------------------------------------------------------------------
+# Path     : ~/.config/ghostty/config
+# Reload   : ctrl+shift+,
+# Docs     : https://ghostty.org/docs/config/reference
+# Defaults : ghostty +show-config --default --docs | less
+#
+# NOTE: Ghostty does NOT support inline comments. `#` is only a comment
+# at the start of a line. Anything after `=` is part of the value.
+# =============================================================================
+
+
+# =============================================================================
+# THEME & COLORS
+# =============================================================================
+
+# Always Mocha - never follow the system light/dark preference.
+theme = Catppuccin Mocha
+
+window-theme   = ghostty
+bold-is-bright = false
+
+# 1.1+ can wash out carefully-designed palettes. Raise only if you hit
+# unreadable color pairs in ls --color or nvim.
+minimum-contrast = 1.0
+
+
+# =============================================================================
+# FONT
+# =============================================================================
+
+font-family               = Hack Nerd Font
+font-size                 = 11
+font-thicken              = true
+adjust-cell-height        = 10%
+adjust-underline-position = 2
+
+# Hack has no ligatures. Uncomment if you swap to JetBrains Mono, FiraCode,
+# Iosevka, Cascadia, MonoLisa, etc. (Off by default since Ghostty 1.2.)
+# font-feature = +calt
+# font-feature = +liga
+# font-feature = +dlig
+
+
+# =============================================================================
+# WINDOW & LAYOUT
+# =============================================================================
+
+background-opacity      = 0.95
+background-blur         = 20
+unfocused-split-opacity = 0.85
+
+# Mocha crust — subtle dim on unfocused splits.
+unfocused-split-fill = #11111b
+
+window-padding-x       = 8
+window-padding-y       = 4
+window-padding-balance = true
+
+# Padding picks up the cell background color — no visible seam.
+window-padding-color = extend
+
+window-decoration = server
+window-width      = 140
+window-height     = 40
+window-inherit-working-directory = true
+
+resize-overlay = always
+
+# `true` only prompts when a process is running. Use `always` to always prompt.
+confirm-close-surface         = true
+quit-after-last-window-closed = true
+
+# Keep a zoomed split zoomed while navigating between splits (Ghostty 1.3+).
+split-preserve-zoom = navigation
+
+# GTK runtime
+gtk-single-instance = true
+gtk-tabs-location   = bottom
+gtk-toolbar-style   = raised
+
+
+# =============================================================================
+# CURSOR
+# =============================================================================
+
+cursor-style       = bar
+cursor-style-blink = true
+
+# Click to move the cursor inside prompts (needs shell integration / OSC 133).
+cursor-click-to-move = true
+
+
+# =============================================================================
+# MOUSE
+# =============================================================================
+
+focus-follows-mouse     = true
+mouse-hide-while-typing = true
+mouse-scroll-multiplier = 3
+
+# Keep default (false) so Shift+click bypasses tmux/nvim mouse capture and
+# you can still select text inside them.
+mouse-shift-capture = false
+
+link-url = true
+
+
+# =============================================================================
+# SHELL INTEGRATION
+# =============================================================================
+
+command           = /usr/bin/zsh
+shell-integration = zsh
+
+# cursor       : bar at prompt, block at command
+# sudo         : preserve TERMINFO across sudo
+# title        : auto-update window title with cwd + running command
+# ssh-env      : set TERM=xterm-256color on remote hosts without ghostty terminfo
+# ssh-terminfo : install ghostty terminfo on remote host on first connect
+shell-integration-features = cursor,sudo,title,ssh-env,ssh-terminfo
+
+
+# =============================================================================
+# SCROLLBACK
+# =============================================================================
+
+# 10M lines — generous for long build logs.
+scrollback-limit = 10000000
+
+
+# =============================================================================
+# CLIPBOARD & SECURITY
+# =============================================================================
+
+copy-on-select                 = clipboard
+clipboard-trim-trailing-spaces = true
+
+# Prompt before programs read the clipboard (default `allow` is permissive).
+clipboard-read  = ask
+clipboard-write = allow
+
+# Warn on pastes containing newlines — blocks auto-execute from malicious copy.
+clipboard-paste-protection = true
+
+# Trust pastes that arrive inside a shell's bracketed-paste wrapper.
+clipboard-paste-bracketed-safe = true
+
+
+# =============================================================================
+# KEYBINDINGS
+# =============================================================================
+# Already bound by default — not repeated below:
+#   ctrl+shift+c / ctrl+shift+v   copy / paste
+#   ctrl+shift+n / ctrl+shift+t   new window / new tab
+#   ctrl+shift+p                  command palette
+#   ctrl+shift+,                  reload config
+#   ctrl+tab / ctrl+shift+tab     next / prev tab
+#   ctrl+shift+o                  new_split:right
+
+
+# -----------------------------------------------------------------------------
+# Font sizing
+# -----------------------------------------------------------------------------
+keybind = ctrl+equal=increase_font_size:1
+keybind = ctrl+minus=decrease_font_size:1
+keybind = ctrl+zero=reset_font_size
+
+
+# -----------------------------------------------------------------------------
+# Window / tabs / close
+# -----------------------------------------------------------------------------
+keybind = ctrl+enter=toggle_fullscreen
+
+# Closes the focused split first; closes the tab only when it's the last split.
+keybind = ctrl+shift+w=close_surface
+
+# Scrollback search (Ghostty 1.3+).
+keybind = ctrl+shift+f=start_search
+
+# Tab jumps — alt+1..9 mirrors tmux muscle memory.
+keybind = alt+1=goto_tab:1
+keybind = alt+2=goto_tab:2
+keybind = alt+3=goto_tab:3
+keybind = alt+4=goto_tab:4
+keybind = alt+5=goto_tab:5
+keybind = alt+6=goto_tab:6
+keybind = alt+7=goto_tab:7
+keybind = alt+8=goto_tab:8
+keybind = alt+9=goto_tab:9
+
+# Prompt-to-prompt scrolling (needs shell integration).
+keybind = ctrl+shift+page_up=jump_to_prompt:-1
+keybind = ctrl+shift+page_down=jump_to_prompt:1
+
+# Dump scrollback into $EDITOR — great for grepping long build/test output.
+keybind = ctrl+shift+j=write_scrollback_file:open
+
+
+# -----------------------------------------------------------------------------
+# Splits (for when you're NOT inside tmux)
+# -----------------------------------------------------------------------------
+keybind = ctrl+shift+enter=new_split:right
+keybind = ctrl+shift+backslash=new_split:down
+
+keybind = ctrl+shift+left=goto_split:left
+keybind = ctrl+shift+right=goto_split:right
+keybind = ctrl+shift+up=goto_split:top
+keybind = ctrl+shift+down=goto_split:bottom
+
+keybind = ctrl+shift+z=toggle_split_zoom
+keybind = ctrl+shift+e=equalize_splits
+
+# Resize splits by 10 pixels.
+keybind = ctrl+alt+shift+left=resize_split:left,10
+keybind = ctrl+alt+shift+right=resize_split:right,10
+keybind = ctrl+alt+shift+up=resize_split:up,10
+keybind = ctrl+alt+shift+down=resize_split:down,10
+
+
+# =============================================================================
+# QUICK TERMINAL (Quake-style dropdown)
+# =============================================================================
+# Toggle with Ctrl+` from within a Ghostty window. True global (system-wide)
+# hotkeys need `global:` + GTK global-shortcut portal support, which isn't
+# reliable on stock Ubuntu/GNOME — using a local keybind instead.
+
+quick-terminal-position           = top
+quick-terminal-animation-duration = 0.15
+quick-terminal-autohide           = true
+
+keybind = ctrl+grave_accent=toggle_quick_terminal

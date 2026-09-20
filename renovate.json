@@ -1,0 +1,20 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":semanticCommits"],
+  "schedule": ["before 8am on monday"],
+  "labels": ["deps"],
+  "packageRules": [
+    {
+      "matchManagers": ["mise"],
+      "groupName": "runtimes"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "groupName": "docker images"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions"
+    }
+  ]
+}
