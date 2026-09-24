@@ -330,7 +330,8 @@ More Nix helpers (flake, build, format, store) live in the zshrc: `flakeshow`,
 
 ## Claude Code
 
-The only AI tool here. Global config is versioned in `claude/`:
+The default personal AI tool here; work machines use Copilot via `ai.sh`.
+Claude global config is versioned in `claude/`:
 
 | What           | Command  | Alias    | Notes                           |
 | -------------- | -------- | -------- | ------------------------------- |
@@ -354,6 +355,36 @@ claude mcp add --scope user playwright -- npx -y @playwright/mcp@latest
 claude mcp add --scope user --transport http github https://api.githubcopilot.com/mcp/ \
   --header "Authorization: Bearer $(gh auth token)"
 ```
+
+### Instructions for other AI assistants
+
+Repository instructions and standalone project templates are available for each assistant:
+
+| Assistant      | Repository instructions           | Project template                            |
+| -------------- | --------------------------------- | ------------------------------------------- |
+| Claude Code    | `CLAUDE.md`                       | `templates/CLAUDE.md`                       |
+| Codex          | `AGENTS.md`                       | `templates/AGENTS.md`                       |
+| Gemini CLI     | `GEMINI.md`                       | `templates/GEMINI.md`                       |
+| GitHub Copilot | `.github/copilot-instructions.md` | `templates/.github/copilot-instructions.md` |
+
+From a new project's root, copy the template for your assistant (existing files
+are preserved):
+
+```bash
+cp -n ~/Code/dotfiles/templates/AGENTS.md ./AGENTS.md
+cp -n ~/Code/dotfiles/templates/GEMINI.md ./GEMINI.md
+mkdir -p .github
+cp -n ~/Code/dotfiles/templates/.github/copilot-instructions.md .github/copilot-instructions.md
+```
+
+Fill in **Project Context** for the target project. Each template is self-contained;
+it does not require `CLAUDE.md`. `ccinit` still copies only the Claude template.
+These files provide instructions; they do not install clients or configure accounts.
+Keep shared rules in sync across assistant variants when editing them.
+
+Filename conventions: [Codex](https://developers.openai.com/codex/guides/agents-md/),
+[Gemini CLI](https://geminicli.com/docs/cli/gemini-md/),
+[GitHub Copilot](https://docs.github.com/en/copilot/how-tos/configure-custom-instructions-in-your-ide/add-repository-instructions-in-your-ide).
 
 ## Shortcuts
 

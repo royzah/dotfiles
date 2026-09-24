@@ -9,7 +9,7 @@ lint:
     zsh -n zshrc
     luacheck nvim/ --quiet
     stylua --check nvim/
-    markdownlint README.md NVIM_GUIDE.md TMUX_GUIDE.md WINDOWS_GUIDE.md CLAUDE.md templates/CLAUDE.md claude/CLAUDE.md
+    markdownlint README.md NVIM_GUIDE.md TMUX_GUIDE.md WINDOWS_GUIDE.md CLAUDE.md AGENTS.md GEMINI.md .github/copilot-instructions.md templates/CLAUDE.md templates/AGENTS.md templates/GEMINI.md templates/.github/copilot-instructions.md claude/CLAUDE.md
     jq empty claude/settings.json nvim/lazyvim.json
 
 fmt:
