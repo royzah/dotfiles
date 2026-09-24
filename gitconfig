@@ -104,3 +104,6 @@
 # Machine-local overrides, last so they win (a work machine sets its identity here)
 [include]
 	path = ~/.gitconfig.local
+[credential "https://gitlab.dev.ssrcdevops.tii.ae"]
+	helper = 
+	helper = !/home/royzah/.local/share/mise/installs/glab/1.119.0/bin/glab auth git-credential
