@@ -38,7 +38,7 @@ jobs:
           args: --config-path nvim/stylua.toml --check nvim/
 
       - name: markdownlint
-        run: npx markdownlint-cli README.md NVIM_GUIDE.md WINDOWS_GUIDE.md templates/CLAUDE.md claude/CLAUDE.md
+        run: npx markdownlint-cli README.md NVIM_GUIDE.md WINDOWS_GUIDE.md CLAUDE.md AGENTS.md GEMINI.md .github/copilot-instructions.md templates/CLAUDE.md templates/AGENTS.md templates/GEMINI.md templates/.github/copilot-instructions.md claude/CLAUDE.md
 
       - name: json
         run: jq empty claude/settings.json nvim/lazyvim.json
