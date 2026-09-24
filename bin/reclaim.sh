@@ -143,9 +143,12 @@ echo
 echo "containers and nix"
 if have docker && docker info > /dev/null 2>&1; then
   d=$(docker system df --format '{{.Reclaimable}}' 2> /dev/null | head -1 | grep -oE '^[0-9.]+[A-Za-z]+' || echo 0B)
-  db=$(numfmt --from=iec "${d%B}B" 2> /dev/null || echo 0)
+  # docker prints "16.16GB"; numfmt wants "16.16G", and rejected input made
+  # this silently report 0, so the docker step never ran
+  db=$(numfmt --from=iec "${d%B}" 2> /dev/null || echo 0)
   if $AGGRESSIVE; then
-    report "docker (all unused)" "$db" docker system prune -af --volumes
+    # No --volumes: an unused volume is usually a stopped project's database
+    report "docker (unused images)" "$db" docker system prune -af
   else
     report "docker dangling" "$db" docker system prune -f
   fi
