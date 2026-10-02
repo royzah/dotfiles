@@ -34,3 +34,12 @@ Kubernetes, embedded Linux (ARM SoCs, serial debugging).
 - Inline on the line it is about, not a wall of text in the body
 - Short, casual, friendly
 - Assertive when certain, a question when not
+
+## Claude Code permission rules
+
+- Allow rules are the prefix form `Bash(cmd:*)` only, `*` last. A `*` earlier in the
+  string silently approves whatever lands at that position
+- Never persist a pipeline, a one-off absolute path, an `ssh`, or a package install as
+  a rule. Those are single-use: approve them for the session, not forever
+- Irreversible or privileged things belong in `permissions.deny`, which outranks every
+  allow rule and every future "don't ask again"
