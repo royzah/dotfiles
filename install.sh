@@ -83,6 +83,9 @@ if [[ -f ~/.ssh/id_ed25519.pub && ! -f ~/.ssh/allowed_signers ]]; then
   echo "  wrote: ~/.ssh/allowed_signers"
 fi
 link gitignore_global ~/.gitignore_global
+# Pre-commit leak guard for this public repo (patterns: ~/.config/dotfiles/denylist)
+git -C "$DOTFILES" config core.hooksPath .githooks
+echo "  hooks: $DOTFILES/.githooks"
 
 # Tmux
 echo "[tmux]"

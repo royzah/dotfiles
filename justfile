@@ -7,16 +7,25 @@ default:
 files := "git ls-files --cached --others --exclude-standard"
 
 lint:
-    shellcheck -x $({{files}} '*.sh')
-    shfmt -d $({{files}} '*.sh')
+    shellcheck -x $({{files}} '*.sh' '.githooks/*')
+    shfmt -d $({{files}} '*.sh' '*.bats' '.githooks/*')
+    shellcheck -s bash -x $({{files}} '*.bats')
     for f in zshrc $({{files}} 'zsh/*.zsh'); do zsh -n "$f"; done
     luacheck nvim/ --quiet
     stylua --config-path nvim/stylua.toml --check nvim/
     markdownlint $({{files}} '*.md')
     jq empty claude/settings.json nvim/lazyvim.json renovate.json
+    gitleaks git --no-banner --redact .
+
+test:
+    bats tests/
+
+# Report drift between this machine and what install/setup would produce
+doctor:
+    ./bin/doctor.sh
 
 fmt:
-    shfmt -w $({{files}} '*.sh')
+    shfmt -w $({{files}} '*.sh' '*.bats' '.githooks/*')
     stylua --config-path nvim/stylua.toml nvim/
 
 # Update everything (system, CLI tools, runtimes, editor, AI); skips what is missing, so no sudo needed. Run monthly.

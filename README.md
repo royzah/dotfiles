@@ -114,6 +114,14 @@ touch ~/.secrets.env && chmod 600 ~/.secrets.env    # auto-sourced, never commit
 Backups read `RESTIC_REPOSITORY` and `RESTIC_PASSWORD` from here - see
 [Optional Extras](#optional-extras).
 
+The repo is public, so a pre-commit hook (`.githooks/`, enabled by `install.sh`)
+runs gitleaks and blocks any staged line matching your private names. List
+those (employer, hostnames, work email; one regex per line) in an untracked file:
+
+```bash
+mkdir -p ~/.config/dotfiles && $EDITOR ~/.config/dotfiles/denylist
+```
+
 ### 7. Carry over from the old machine
 
 The repo restores config; this data is not in git and must be copied manually:
@@ -194,6 +202,8 @@ dotfiles/
 |-- bin/                   # scripts (see table below)
 |-- templates/             # flake.nix, envrc, compose.yaml, AGENTS.md
 |-- migrations/            # run-once machine migrations
+|-- tests/                 # bats tests + install idempotency smoke test
+|-- .githooks/             # pre-commit leak guard
 |-- systemd/ vscode/ chrome/    # services, editor settings, browser policy
 ```
 
@@ -210,7 +220,9 @@ dotfiles/
 | `just backup`                       | Run a restic backup now                                       |
 | `just wallpapers <q> [n]`           | Fetch wallpapers into a topic folder                          |
 | `just firmware`                     | fwupdmgr refresh and update                                   |
-| `just lint` / `just fmt`            | shellcheck, shfmt, luacheck, stylua, markdownlint             |
+| `just lint` / `just fmt`            | shellcheck, shfmt, luacheck, stylua, markdownlint, gitleaks   |
+| `just test`                         | bats tests (`tests/smoke.sh`: install idempotency in Docker)  |
+| `just doctor`                       | Report drift from what install/setup would produce            |
 
 ### bin/ scripts
 
@@ -219,6 +231,7 @@ dotfiles/
 | `gpu-setup.sh`              | Driver, Vulkan, VA-API for the GPUs present             |
 | `gaming-setup.sh`           | Steam, Lutris, Heroic, GameMode, MangoHud, ProtonUp-Qt  |
 | `hw-profile.sh`             | Hardware and session detection, sourced by the others   |
+| `doctor.sh`                 | Report-only drift check (`just doctor`)                 |
 | `system-tune.sh`            | zram, journald cap, writeback limits, cgroup delegation |
 | `reclaim.sh`                | Report and free caches + stale build dirs               |
 | `backup.sh`                 | restic backup / restore / snapshots                     |

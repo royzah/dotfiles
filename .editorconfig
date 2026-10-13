@@ -9,6 +9,10 @@ indent_style = space
 indent_size = 2
 
 # shfmt reads these
-[*.sh]
+[*.{sh,bats}]
+switch_case_indent = true
+space_redirects = true
+
+[.githooks/*]
 switch_case_indent = true
 space_redirects = true
