@@ -118,6 +118,25 @@ $profiles}
 "@ | Set-Content (Join-Path $frag 'dotfiles.json') -Encoding ascii
 Write-Host '  Catppuccin Mocha scheme added'
 
+if (-not $Work) {
+  Write-Host '[wsl]'
+  $wslcfg = Join-Path $env:USERPROFILE '.wslconfig'
+  if (Test-Path $wslcfg) {
+    Write-Host '  have: .wslconfig (left as is)'
+  } else {
+    @'
+[wsl2]
+networkingMode=mirrored
+
+[experimental]
+autoMemoryReclaim=gradual
+sparseVhd=true
+hostAddressLoopback=true
+'@ | Set-Content $wslcfg -Encoding ascii
+    Write-Host '  wrote: .wslconfig (applies after wsl --shutdown)'
+  }
+}
+
 Write-Host '[vscode]'
 if (Get-Command code -ErrorAction SilentlyContinue) {
   $exts = @('Catppuccin.catppuccin-vsc')

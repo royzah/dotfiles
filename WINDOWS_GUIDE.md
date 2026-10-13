@@ -19,7 +19,8 @@ Windows 11 25H2, WSL 3.0.
 ### 1. Run the laptop script
 
 Per user, no admin, idempotent: apps via winget, Hack Nerd Font, Catppuccin
-for Windows Terminal, VS Code extensions, End Task on the taskbar.
+for Windows Terminal, VS Code extensions, End Task on the taskbar, and
+`.wslconfig` on personal machines.
 
 ```powershell
 iwr https://raw.githubusercontent.com/royzah/dotfiles/main/windows/laptop.ps1 -OutFile laptop.ps1
@@ -61,21 +62,12 @@ wsl --install -d Ubuntu-26.04
 
 ### 2. Tune WSL
 
-Use the **WSL Settings** app, or `%UserProfile%\.wslconfig`:
-
-```ini
-[wsl2]
-networkingMode=mirrored     # localhost and LAN work both ways, VPNs behave
-memory=16GB                 # about half of RAM; the default is 50%
-
-[experimental]
-autoMemoryReclaim=gradual   # hand freed memory back to Windows
-sparseVhd=true              # the disk image shrinks when files are deleted
-hostAddressLoopback=true    # reach Windows services on 127.0.0.1
-```
-
-`wsl --shutdown` applies it. DNS tunneling, the firewall, and auto proxy are on
-by default.
+The laptop script already wrote `%UserProfile%\.wslconfig` (it never overwrites
+one): mirrored networking (localhost, LAN and VPNs work both ways), gradual
+memory reclaim, a self-shrinking disk image, and `127.0.0.1` reaching Windows
+services. Memory stays at the default half of RAM; add `memory=` under `[wsl2]`
+or use the **WSL Settings** app to change it. `wsl --shutdown` applies changes.
+DNS tunneling, the firewall, and auto proxy are on by default.
 
 ### 3. Install the dotfiles inside Ubuntu
 
