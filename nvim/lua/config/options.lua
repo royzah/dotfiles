@@ -6,7 +6,7 @@
 
 local opt = vim.opt
 
--- Tabs (LazyVim defaults to 2, which is fine for most — Go uses gofumpt anyway)
+-- Tabs (LazyVim defaults to 2, which is fine for most; Go uses gofumpt anyway)
 opt.tabstop = 2
 opt.shiftwidth = 2
 

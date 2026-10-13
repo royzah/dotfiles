@@ -38,7 +38,9 @@ tmux a -t myproj     # attach to a named one
 | `f`                   | Fuzzy session picker                       |
 | `p`                   | Project sessionizer (zoxide)               |
 | `a`                   | Claude Code popup                          |
-| `g` / `B` / `K` / `N` | lazygit / btop / k9s / nvim popup          |
+| `g` / `B` / `N`       | lazygit / btop / nvim popup                |
+| `Ctrl-k`              | k9s popup                                  |
+| `D`                   | Debug layout: editor left, two panes right |
 | `r`                   | Reload config                              |
 | `?`                   | List every binding (`q` to close)          |
 

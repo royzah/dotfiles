@@ -73,42 +73,21 @@ return {
         },
 
         -- Servers not covered by extras
-        ansiblels = {},
-        tailwindcss = {},
         html = {},
         cssls = {},
       },
     },
   },
 
-  -- Mason: ensure additional tools are installed
+  -- Mason: tools no enabled extra installs (formatters, DAP and the rest come with extras)
   {
     "mason-org/mason.nvim",
     opts = {
       ensure_installed = {
-        -- Formatters
-        "prettier",
-        "ruff",
-        "black",
-        "isort",
-        "gofumpt",
-        "goimports",
-        "stylua",
-        "shfmt",
-
-        -- Linters
-        "eslint_d",
-        "golangci-lint",
         "shellcheck",
-        "hadolint",
         "yamllint",
         "ansible-lint",
-        "tflint",
-
-        -- DAP
-        "debugpy",
-        "delve",
-        "js-debug-adapter",
+        "alejandra",
       },
     },
   },

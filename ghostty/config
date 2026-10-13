@@ -1,5 +1,5 @@
 # =============================================================================
-# Ghostty — Catppuccin Mocha, tuned for tmux + nvim
+# Ghostty: Catppuccin Mocha, tuned for tmux + nvim
 # -----------------------------------------------------------------------------
 # Path     : ~/.config/ghostty/config
 # Reload   : ctrl+shift+,
@@ -51,14 +51,14 @@ background-opacity      = 0.95
 background-blur         = 20
 unfocused-split-opacity = 0.85
 
-# Mocha crust — subtle dim on unfocused splits.
+# Mocha crust; subtle dim on unfocused splits.
 unfocused-split-fill = #11111b
 
 window-padding-x       = 8
 window-padding-y       = 4
 window-padding-balance = true
 
-# Padding picks up the cell background color — no visible seam.
+# Padding picks up the cell background color; no visible seam.
 window-padding-color = extend
 
 window-decoration = server
@@ -117,16 +117,15 @@ shell-integration = zsh
 # cursor       : bar at prompt, block at command
 # sudo         : preserve TERMINFO across sudo
 # title        : auto-update window title with cwd + running command
-# ssh-env      : set TERM=xterm-256color on remote hosts without ghostty terminfo
-# ssh-terminfo : install ghostty terminfo on remote host on first connect
-shell-integration-features = cursor,sudo,title,ssh-env,ssh-terminfo
+# no ssh-*     : zsh/functions.zsh owns ssh() (TERM fallback + tmux disarm)
+shell-integration-features = cursor,sudo,title,no-ssh-env,no-ssh-terminfo
 
 
 # =============================================================================
 # SCROLLBACK
 # =============================================================================
 
-# 10M lines — generous for long build logs.
+# 10M lines; generous for long build logs.
 scrollback-limit = 10000000
 
 
@@ -141,7 +140,7 @@ clipboard-trim-trailing-spaces = true
 clipboard-read  = ask
 clipboard-write = allow
 
-# Warn on pastes containing newlines — blocks auto-execute from malicious copy.
+# Warn on pastes containing newlines; blocks auto-execute from malicious copy.
 clipboard-paste-protection = true
 
 # Trust pastes that arrive inside a shell's bracketed-paste wrapper.
@@ -151,50 +150,28 @@ clipboard-paste-bracketed-safe = true
 # =============================================================================
 # KEYBINDINGS
 # =============================================================================
-# Already bound by default — not repeated below:
+# Already bound by default; not repeated below:
 #   ctrl+shift+c / ctrl+shift+v   copy / paste
 #   ctrl+shift+n / ctrl+shift+t   new window / new tab
 #   ctrl+shift+p                  command palette
 #   ctrl+shift+,                  reload config
 #   ctrl+tab / ctrl+shift+tab     next / prev tab
 #   ctrl+shift+o                  new_split:right
-
-
-# -----------------------------------------------------------------------------
-# Font sizing
-# -----------------------------------------------------------------------------
-keybind = ctrl+equal=increase_font_size:1
-keybind = ctrl+minus=decrease_font_size:1
-keybind = ctrl+zero=reset_font_size
+#   ctrl+= / ctrl+- / ctrl+0      font size
+#   ctrl+enter                    toggle fullscreen
+#   ctrl+shift+f                  scrollback search
+#   alt+1..8 / alt+9              goto tab / last tab
+#   ctrl+shift+page_up/down       jump to prompt
 
 
 # -----------------------------------------------------------------------------
 # Window / tabs / close
 # -----------------------------------------------------------------------------
-keybind = ctrl+enter=toggle_fullscreen
-
-# Closes the focused split first; closes the tab only when it's the last split.
+# Default closes the whole tab; close only the focused split instead.
 keybind = ctrl+shift+w=close_surface
 
-# Scrollback search (Ghostty 1.3+).
-keybind = ctrl+shift+f=start_search
 
-# Tab jumps — alt+1..9 mirrors tmux muscle memory.
-keybind = alt+1=goto_tab:1
-keybind = alt+2=goto_tab:2
-keybind = alt+3=goto_tab:3
-keybind = alt+4=goto_tab:4
-keybind = alt+5=goto_tab:5
-keybind = alt+6=goto_tab:6
-keybind = alt+7=goto_tab:7
-keybind = alt+8=goto_tab:8
-keybind = alt+9=goto_tab:9
-
-# Prompt-to-prompt scrolling (needs shell integration).
-keybind = ctrl+shift+page_up=jump_to_prompt:-1
-keybind = ctrl+shift+page_down=jump_to_prompt:1
-
-# Dump scrollback into $EDITOR — great for grepping long build/test output.
+# Dump scrollback into $EDITOR (default pastes the screen file path instead)
 keybind = ctrl+shift+j=write_scrollback_file:open
 
 
@@ -224,7 +201,7 @@ keybind = ctrl+alt+shift+down=resize_split:down,10
 # =============================================================================
 # Toggle with Ctrl+` from within a Ghostty window. True global (system-wide)
 # hotkeys need `global:` + GTK global-shortcut portal support, which isn't
-# reliable on stock Ubuntu/GNOME — using a local keybind instead.
+# reliable on stock Ubuntu/GNOME; using a local keybind instead.
 
 quick-terminal-position           = top
 quick-terminal-animation-duration = 0.15

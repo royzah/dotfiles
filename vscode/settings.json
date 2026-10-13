@@ -172,13 +172,6 @@
   // --- Svelte ---
   "svelte.enable-ts-plugin": true,
 
-  // --- Kubernetes ---
-  "vs-kubernetes": {
-    "vscode-kubernetes.minikube-path-linux": "/home/royzah/.local/state/vs-kubernetes/tools/minikube/linux-amd64/minikube",
-    "vscode-kubernetes.kubectl-path-linux": "/home/royzah/.local/state/vs-kubernetes/tools/kubectl/kubectl",
-    "vscode-kubernetes.helm-path-linux": "/home/royzah/.local/state/vs-kubernetes/tools/helm/linux-amd64/helm",
-  },
-
   // --- CMake ---
   "cmake.pinnedCommands": [
     "workbench.action.tasks.configureTaskRunner",

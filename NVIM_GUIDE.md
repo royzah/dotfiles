@@ -12,7 +12,7 @@ Reference for this exact config (LazyVim, leader = `Space`, which-key on `Space`
 - [6. Clipboard and Registers](#6-clipboard-and-registers)
 - [7. Search and Replace](#7-search-and-replace)
 - [8. Files, Buffers, Explorers](#8-files-buffers-explorers)
-- [9. Telescope](#9-telescope)
+- [9. Pickers](#9-pickers)
 - [10. Harpoon](#10-harpoon)
 - [11. LSP](#11-lsp)
 - [12. Completion and Snippets](#12-completion-and-snippets)
@@ -43,7 +43,7 @@ Reference for this exact config (LazyVim, leader = `Space`, which-key on `Space`
 | ------------------- | ----------------- |
 | Insert text         | `i`               |
 | Back to Normal      | `jk` or `Esc`     |
-| Save                | `Space w` or `:w` |
+| Save                | `Ctrl-s` or `:w`  |
 | Quit                | `:q`              |
 | Save and quit       | `:wq`             |
 | Quit without saving | `:q!`             |
@@ -216,7 +216,7 @@ remapped to `"_dP` so it does not clobber the clipboard.
 Oil (`-`): parent dir as an editable buffer. Edit names to rename, `dd` to
 delete, add a line to create, `:w` to apply.
 
-## 9. Telescope
+## 9. Pickers
 
 | Key           | Searches          |
 | ------------- | ----------------- |
@@ -239,9 +239,9 @@ Inside a picker: type to filter, `Ctrl-j`/`Ctrl-k` move, `Enter` open,
 
 | Key                 | Action                  |
 | ------------------- | ----------------------- |
-| `Space ha`          | add current file        |
-| `Space hh`          | menu (reorder / remove) |
-| `Space 1`-`Space 5` | jump to file 1-5        |
+| `Space H`           | add current file        |
+| `Space h`           | menu (reorder / remove) |
+| `Space 1`-`Space 9` | jump to file 1-9        |
 
 ## 11. LSP
 
@@ -271,30 +271,32 @@ Inside a picker: type to filter, `Ctrl-j`/`Ctrl-k` move, `Enter` open,
 | `]w` / `[w`             | next / prev warning        |
 | `Space xx` / `Space xX` | Trouble list / buffer only |
 
-**Format on save (conform.nvim):**
+**Format on save (conform.nvim; mostly set by LazyVim and its extras):**
 
 | Language                    | Formatter                          |
 | --------------------------- | ---------------------------------- |
 | Go                          | gofumpt, goimports                 |
 | Python                      | ruff_format, ruff_organize_imports |
 | JS/TS/JSON/YAML/MD/HTML/CSS | prettier                           |
+| C/C++                       | clang-format (clangd)              |
+| Nix                         | alejandra                          |
 | Lua                         | stylua                             |
 | Shell                       | shfmt                              |
 | Terraform                   | terraform_fmt                      |
 | Rust                        | rustfmt                            |
 
-**Lint on save (nvim-lint):**
+**Lint on save (nvim-lint, plus LSP diagnostics):**
 
-| Language   | Linter        |
-| ---------- | ------------- |
-| Go         | golangci-lint |
-| Python     | ruff          |
-| JS/TS      | eslint_d      |
-| Shell      | shellcheck    |
-| Dockerfile | hadolint      |
-| YAML       | yamllint      |
-| Terraform  | tflint        |
-| Ansible    | ansible-lint  |
+| Language   | Linter                  |
+| ---------- | ----------------------- |
+| Go         | golangci-lint           |
+| Python     | ruff (LSP)              |
+| JS/TS      | eslint (LSP)            |
+| Shell      | shellcheck              |
+| Dockerfile | hadolint                |
+| YAML       | yamllint                |
+| Terraform  | tflint                  |
+| Ansible    | ansible-lint            |
 
 ## 12. Completion and Snippets
 
@@ -344,7 +346,7 @@ the prefix, then `Tab`/`Shift-Tab` between placeholders.
 | Key                     | Action                        |
 | ----------------------- | ----------------------------- |
 | `Space gd`              | open diffview (all changes)   |
-| `Space gh` / `Space gH` | file history / branch history |
+| `Space gF` / `Space gH` | file history / branch history |
 | `Space gq`              | close                         |
 
 **Fugitive:**
@@ -372,7 +374,7 @@ opens and closes with the session.
 | `Space dO` | step out                    |
 | `Space du` | toggle DAP UI               |
 | `Space de` | evaluate (normal or visual) |
-| `Space dr` | open REPL                   |
+| `Space dr` | toggle REPL                 |
 | `Space dl` | run last config             |
 
 **Extra debug configs:**
@@ -388,10 +390,10 @@ opens and closes with the session.
 
 | Key        | Action                |
 | ---------- | --------------------- |
-| `Space tt` | run nearest test      |
-| `Space tf` | run all tests in file |
+| `Space tr` | run nearest test      |
+| `Space tt` | run all tests in file |
 | `Space ts` | toggle summary panel  |
-| `Space to` | toggle output panel   |
+| `Space to` | show output           |
 
 ## 15. Terminal
 
@@ -426,18 +428,18 @@ opens and closes with the session.
 
 Add a plugin: `{ "username/plugin-name", opts = {} }` in `plugins/user.lua`,
 then `:Lazy sync`. Remove: delete the entry, `:Lazy clean`. Disable a LazyVim
-default: `{ "some/plugin", enabled = false }` (done here for auto-session).
+default: `{ "some/plugin", enabled = false }`.
 
 **Lazy-loading triggers (why a plugin seems missing until used):**
 
 | Trigger                 | Loads           | Examples here                                   |
 | ----------------------- | --------------- | ----------------------------------------------- |
 | `lazy = false`          | at startup      | catppuccin, vim-tmux-navigator                  |
-| `event = "BufReadPost"` | on file open    | gitsigns, illuminate, colorizer, todo-comments  |
+| `event = "BufReadPost"` | on file open    | gitsigns, colorizer, treesitter-context         |
 | `event = "InsertEnter"` | entering Insert | better-escape                                   |
 | `ft = ...`              | per filetype    | markdown-preview, nvim-bqf (qf)                 |
-| `cmd = ...`             | on command      | LazyGit, Oil, Diffview, DBUI, Fugitive, ZenMode |
-| `keys = ...`            | on keypress     | undotree, grug-far, DAP, neotest, Claude Code   |
+| `cmd = ...`             | on command      | Oil, Diffview, DBUI, Fugitive, ZenMode          |
+| `keys = ...`            | on keypress     | undotree, DAP, neotest, Claude Code             |
 
 ## 18. LazyVim Extras
 
@@ -458,8 +460,11 @@ default: `{ "some/plugin", enabled = false }` (done here for auto-session).
 | `lang.tailwind`       | Tailwind IntelliSense                        |
 | `lang.ansible`        | ansible-language-server                      |
 | `lang.toml`           | taplo                                        |
+| `lang.nix`            | nil LSP (formatting: alejandra)              |
+| `lang.cmake`          | neocmake LSP, cmakelint                      |
+| `lang.clangd`         | clangd, clang-format, codelldb               |
 | `formatting.prettier` | prettier                                     |
-| `linting.eslint`      | eslint_d                                     |
+| `linting.eslint`      | eslint LSP                                   |
 | `test.core`           | neotest framework                            |
 | `dap.core`            | DAP framework + UI                           |
 | `editor.harpoon2`     | Harpoon v2                                   |
@@ -475,7 +480,7 @@ default: `{ "some/plugin", enabled = false }` (done here for auto-session).
 | markdown-preview   | live browser preview (.md)       | `Space mp`              |
 | treesitter-context | sticky function headers          | `Space ut` toggle       |
 | todo-comments      | highlight/search TODO/FIXME/HACK | `Space st`, `]t`/`[t`   |
-| vim-illuminate     | highlight word occurrences       | automatic               |
+| snacks.words       | highlight word occurrences       | automatic               |
 | nvim-colorizer     | inline hex colors                | automatic               |
 | nvim-bqf           | better quickfix windows          | automatic               |
 
@@ -503,9 +508,8 @@ default: `{ "some/plugin", enabled = false }` (done here for auto-session).
 | `Space sk`     | searchable list of every keymap    |
 | `:help {kw}`   | docs for a keyword                 |
 
-Auto-installed via `ensure_installed`: prettier, ruff, black, isort, gofumpt,
-goimports, stylua, shfmt, eslint_d, golangci-lint, shellcheck, hadolint,
-yamllint, ansible-lint, tflint, debugpy, delve, js-debug-adapter.
+Extras install their own tools (gofumpt, ruff, prettier, clangd, delve, ...);
+`plugins/lsp.lua` adds only shellcheck, yamllint, ansible-lint and alejandra.
 
 ## 21. Config Structure and Customizing
 
@@ -582,7 +586,7 @@ Alternative: `claude` in a tmux pane (`prefix + a` popup) works without nvim.
 | Ctrl-P (find file)        | `Space Space`                    |
 | Ctrl-Shift-F (search all) | `Space /`                        |
 | Ctrl-Tab (switch file)    | `Space ,` or `[b`/`]b`           |
-| Ctrl-S (save)             | `Space w`                        |
+| Ctrl-S (save)             | `Ctrl-s`                         |
 | Ctrl-Z / Ctrl-Shift-Z     | `u` / `Ctrl-r`                   |
 | Ctrl-C / Ctrl-V           | `y` / `p` (system clipboard)     |
 | Ctrl-/ (comment)          | `gcc` (line), `gc` + motion      |
@@ -611,7 +615,7 @@ w b e     words     a    append         Space /      grep files
 0 $       line      o/O  new line       Space ,      buffers
 gg G      file      dd   delete line    Space e      explorer
 Ctrl-d/u  scroll    yy   yank line      Space fr     recent
-s         flash     p    paste          Space 1-5    harpoon
+s         flash     p    paste          Space 1-9    harpoon
 { }       para      ciw  change word    gd           go to def
 %         bracket   u    undo           gr           references
 f{c}      find      .    repeat edit    K            hover docs
@@ -624,8 +628,8 @@ yy   copy line      ]h / [h   hunks     :LazyExtras extras
                     Space gB  blame     Ctrl-\      terminal
 
 SAVE/QUIT           SEARCH              AI / DEBUG
-Space w   save      /pattern  search    Space ac  claude
+Ctrl-s    save      /pattern  search    Space ac  claude
 :q        quit      Space /   grep all  Space db  breakpoint
 :wq       save+q    Space sr  replace   Space dc  start/cont
-Space Q   quit all  Space st  TODOs     Space tt  run test
+Space Q   quit all  Space st  TODOs     Space tr  run test
 ```
