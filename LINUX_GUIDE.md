@@ -127,15 +127,7 @@ ccinit            # agent instructions (AGENTS.md + per-tool files), git-exclude
 
 `.envrc` is `use flake` (cached by nix-direnv) or `use mise` for quick scripts.
 
-Embedded loop:
-
-```bash
-nbuild <attr> / nbuild_a64 <pkg>     # nix build, native / aarch64
-serial [baud] / mcomusb 0 / lsserial # fzf port picker, quick connect, list
-todev / fromdev user@dev:/p file     # scp to / from a board
-watchsync <dir> <host:path>          # rsync on every change
-ssht user@host                       # ssh + attach tmux
-```
+Serial consoles: `minicom -D /dev/ttyUSB0 -b 115200` (the `dialout` group, no sudo).
 
 ## AI agents
 
@@ -243,19 +235,13 @@ Everything else Neovim: [NVIM_GUIDE.md](NVIM_GUIDE.md).
 
 ## Commands
 
-The OMZ git plugin provides the `g*` aliases. Extras:
+Aliases are kept to what shell history shows in use; type the rest in full.
 
 ```bash
-# Files and navigation
-z / zi | ll / lt | b / v / jl / duu | ff / fdir / findin | mkcd / extract / serve
-# Git, Docker, Kubernetes
-lg / glog | gwa <branch> / gwd | d / dps / dex / dlog / lzd | dc / dcup / dcdown
-k / kk (k9s) | kgp kgd kgs | klogs <pattern> | kctx / kc <ctx> / ksetns <ns>
-# Languages
-tf tfp tfa | cb cr ct cck (cargo) | gob gor got (go) | py venv activate
-# System and net
-please | ports / killport <port> | myip / localip | listening / dns / sniff
-vpn / vpnoff | gmode <game> | remind 7 "tea" | try <name> | tdl / tsl 4 <cmd>
+z / zi | ls / ll / la / l (eza) | .. | c | py / pip | dc (docker compose)
+k / kgp / kgd (OMZ kubectl) | kctx / kc <ctx> / kns / ksetns <ns> / kcur | kw / ke
+logs <file> (lnav) | tdl (tmux: nvim + AI + shell)
+remind.sh 7 "tea"          # desktop reminder in 7 minutes
 db.sh up|psql|redis|down   # throwaway postgres 18 + redis on localhost
 dotf <target>              # any just target from anywhere
 ```

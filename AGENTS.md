@@ -119,6 +119,9 @@
 - 2026-10-13: working discipline follows the four Karpathy principles
   (multica-ai/andrej-karpathy-skills) -- they target the common LLM failures:
   silent assumptions, overengineering, drive-by edits, unverified "done".
+- 2026-10-13: aliases cut to what atuin history shows in use (~20 of 251), OMZ
+  git plugin dropped -- 13.5k commands since 2024 used almost none of them;
+  plumbing (eza `ls`, ssh wrapper, WSL glue, `tdl`, `ccinit`) stays regardless.
 
 ## Learned Conventions
 
