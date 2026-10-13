@@ -5,14 +5,16 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
-  outputs = { self, nixpkgs }:
-    let
-      system = "x86_64-linux";
-      pkgs = import nixpkgs { inherit system; };
-    in {
-      devShells.${system}.default = pkgs.mkShell {
+  outputs = {nixpkgs, ...}: let
+    systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
+    forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
+  in {
+    formatter = forAllSystems (pkgs: pkgs.alejandra);
+
+    devShells = forAllSystems (pkgs: {
+      default = pkgs.mkShell {
         packages = with pkgs; [
-          # === Runtimes (uncomment what you need; stable as of Aug 2026) ===
+          # === Runtimes (uncomment what you need; stable as of Oct 2026) ===
           # python314
           # uv
           # nodejs_24
@@ -38,5 +40,6 @@
         #   echo "dev shell loaded"
         # '';
       };
-    };
+    });
+  };
 }

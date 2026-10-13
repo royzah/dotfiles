@@ -56,20 +56,23 @@ cat ~/.ssh/id_ed25519.pub    # add at github.com/settings/keys (auth AND signing
 ### 2. Bootstrap
 
 `./bootstrap.sh` installs everything automatable - apt base, zsh + oh-my-zsh,
-Nix + nix-direnv, Docker, Neovim, VS Code, Homebrew CLI tools, mise runtimes,
-rustup, Claude Code, TPM. Desktop packages are skipped on WSL. **Log out and
-back in** afterwards for the default shell and docker group.
+Nix + nix-direnv, Docker, VS Code, Homebrew CLI tools, mise runtimes (incl.
+Neovim), rustup, Claude Code, TPM. Desktop packages are skipped on WSL and
+headless servers. **Log out and back in** afterwards for the default shell and
+the docker and dialout groups.
 
 ### 3. Symlink and configure
 
 ```bash
-./install.sh         # symlink every config, install VS Code extensions
+./install.sh         # symlink configs, install VS Code extensions
 ./setup-system.sh    # font, Ghostty, GNOME keys, extensions, web apps, wallpapers
 git remote set-url origin git@github.com:royzah/dotfiles.git
 ```
 
-Existing files are backed up as `.bak`. `setup-system.sh` exits cleanly on WSL,
-headless servers, and non-GNOME desktops.
+Existing files are backed up as `.bak`. `~/.gitconfig` is a local file that
+includes the repo's `gitconfig`, so `gh`/`glab auth` write credentials there,
+not into the public repo. `setup-system.sh` exits cleanly on WSL, headless
+servers, and non-GNOME desktops.
 
 ### 4. Hardware
 
@@ -96,7 +99,7 @@ echo $XDG_SESSION_TYPE         # expect: wayland
 claude    # /login, then trust ~/Code/dotfiles once
 nvim      # lazy.nvim auto-installs; then :Lazy sync, :Mason
 tmux      # prefix + I installs plugins
-systemctl --user enable --now tmux.service claude-remote.service
+just system   # rerun once trusted: enables claude-remote.service
 ```
 
 Optional: `atuin login` (history sync) and Tailscale
@@ -189,7 +192,7 @@ dotfiles/
 |-- mise.toml gdbinit minirc.* XCompose            # runtimes, debug, serial, compose
 |-- claude/                # Claude Code global config
 |-- bin/                   # scripts (see table below)
-|-- templates/             # flake.nix, envrc, compose.yaml, CLAUDE.md
+|-- templates/             # flake.nix, envrc, compose.yaml, AGENTS.md
 |-- migrations/            # run-once machine migrations
 |-- systemd/ vscode/ chrome/    # services, editor settings, browser policy
 ```
@@ -200,7 +203,6 @@ dotfiles/
 | ----------------------------------- | ------------------------------------------------------------- |
 | `just install`                      | Symlink all configs, install VS Code extensions               |
 | `just system`                       | GNOME settings, keybindings, extensions, web apps, wallpapers |
-| `just zsh` / `git` / `ssh` / `nvim` | Link one config group only                                    |
 | `just update`                       | apt, brew, mise, rustup, claude, nvim, tpm, nix gc            |
 | `just gpu` / `just tune`            | Graphics stack / one-time system tuning                       |
 | `just gaming`                       | steam, lutris, heroic, gamemode, mangohud, gamescope          |
@@ -233,7 +235,7 @@ dotfiles/
 | `claude-remote.sh`          | Claude Code remote control session                      |
 | `gnome-extensions-setup.sh` | Install and configure GNOME extensions                  |
 | `dotf.sh`                   | Run any just target from anywhere (`dotf`)              |
-| `ai.sh`                     | Claude, or Copilot on a work machine (`cc`, `prefix+a`) |
+| `ai.sh`                     | Claude, or Copilot on a work machine (`ai`, `prefix+a`) |
 
 [Renovate](https://docs.renovatebot.com) watches `templates/compose.yaml`,
 `mise.toml`, and `.github/workflows/` and opens grouped version-bump PRs on
@@ -302,7 +304,7 @@ vim flake.nix             # uncomment needed packages
 direnv allow              # tools appear on cd, vanish on leave
 
 cp ~/Code/dotfiles/templates/compose.yaml . && docker compose up -d   # optional services
-ccinit                    # optional: CLAUDE.md from template, git-excluded
+ccinit                    # optional: AGENTS.md + CLAUDE.md, git-excluded
 ```
 
 `.envrc` is `use flake` (Nix shell, cached by nix-direnv) or `use mise` (quick scripts).
@@ -335,12 +337,13 @@ Claude global config is versioned in `claude/`:
 
 | What           | Command  | Alias    | Notes                           |
 | -------------- | -------- | -------- | ------------------------------- |
-| Claude Code    | `claude` | `cc`     | OAuth login via /login          |
-| Continue       | -        | `ccc`    | resume last session             |
+| Claude Code    | `claude` | `ai`     | OAuth login via /login          |
+| Continue       | -        | `aic`    | resume last session             |
 | Remote control | -        | `ccr`    | connect from claude.ai/code     |
-| Project init   | -        | `ccinit` | CLAUDE.md template into project |
+| Project init   | -        | `ccinit` | AGENTS.md + CLAUDE.md templates |
 
-- `claude/CLAUDE.md` and `settings.json` link to `~/.claude/` (memory, permissions, hooks).
+- `claude/CLAUDE.md` links to `~/.claude/`; `settings.json` is merged into
+  `~/.claude/settings.json` (repo keys win, local-only keys survive).
 - `claude/statusline.sh`: model | dir | branch | cost.
 - `claude/hooks/`: block secret-file writes, auto-format after edits, notify on done.
 - Entry points: tmux `prefix + a` popup, `Super+Ctrl+A` window, the
@@ -358,29 +361,18 @@ claude mcp add --scope user --transport http github https://api.githubcopilot.co
 
 ### Instructions for other AI assistants
 
-Repository instructions and standalone project templates are available for each assistant:
+`AGENTS.md` is the single source of instructions, in this repo and in
+`templates/`. The other files only point at it, so the rules never drift:
 
-| Assistant      | Repository instructions           | Project template                            |
-| -------------- | --------------------------------- | ------------------------------------------- |
-| Claude Code    | `CLAUDE.md`                       | `templates/CLAUDE.md`                       |
-| Codex          | `AGENTS.md`                       | `templates/AGENTS.md`                       |
-| Gemini CLI     | `GEMINI.md`                       | `templates/GEMINI.md`                       |
-| GitHub Copilot | `.github/copilot-instructions.md` | `templates/.github/copilot-instructions.md` |
+| Assistant      | Reads                                        |
+| -------------- | -------------------------------------------- |
+| Codex, Copilot | `AGENTS.md` natively                         |
+| Claude Code    | `CLAUDE.md`, which imports `@AGENTS.md`      |
+| Gemini CLI     | `GEMINI.md`, a pointer to `AGENTS.md`        |
+| Copilot (IDE)  | `.github/copilot-instructions.md`, a pointer |
 
-From a new project's root, copy the template for your assistant (existing files
-are preserved):
-
-```bash
-cp -n ~/Code/dotfiles/templates/AGENTS.md ./AGENTS.md
-cp -n ~/Code/dotfiles/templates/GEMINI.md ./GEMINI.md
-mkdir -p .github
-cp -n ~/Code/dotfiles/templates/.github/copilot-instructions.md .github/copilot-instructions.md
-```
-
-Fill in **Project Context** for the target project. Each template is self-contained;
-it does not require `CLAUDE.md`. `ccinit` still copies only the Claude template.
-These files provide instructions; they do not install clients or configure accounts.
-Keep shared rules in sync across assistant variants when editing them.
+`ccinit` copies all of them into a new project (existing files are preserved);
+then fill in **Project Context** in `AGENTS.md`.
 
 Filename conventions: [Codex](https://developers.openai.com/codex/guides/agents-md/),
 [Gemini CLI](https://geminicli.com/docs/cli/gemini-md/),
@@ -448,19 +440,19 @@ with `webapp-install.sh <Name> <URL>`.
 
 ### tmux (prefix = `Ctrl-a`)
 
-| Prefix + key          | Action                                     |
-| --------------------- | ------------------------------------------ |
-| `\|` / `-`            | Split horizontal / vertical                |
-| `h j k l` / `H J K L` | Navigate / resize panes                    |
-| `c`                   | New window                                 |
-| `Ctrl-h` / `Ctrl-l`   | Previous / next window                     |
-| `f` / `p`             | Fuzzy session picker / project sessionizer |
-| `a`                   | Claude Code popup                          |
-| `g` / `K` / `B` / `N` | lazygit / k9s / btop / nvim popup          |
-| `x` / `r`             | Kill pane / reload config                  |
-| `[` then `v` / `y`    | Copy mode (vi): select / yank              |
-| `F`                   | Thumbs quick-copy (URLs, hashes, paths)    |
-| `I` / `U`             | TPM install / update plugins               |
+| Prefix + key            | Action                                     |
+| ----------------------- | ------------------------------------------ |
+| `\|` / `-`              | Split horizontal / vertical                |
+| `h j k l` / `H J K L`   | Navigate / resize panes                    |
+| `c`                     | New window                                 |
+| `Ctrl-h` / `Ctrl-l`     | Previous / next window                     |
+| `f` / `p`               | Fuzzy session picker / project sessionizer |
+| `a`                     | Claude Code popup                          |
+| `g` / `C-k` / `B` / `N` | lazygit / k9s / btop / nvim popup          |
+| `x` / `r`               | Kill pane / reload config                  |
+| `[` then `v` / `y`      | Copy mode (vi): select / yank              |
+| `F`                     | Thumbs quick-copy (URLs, hashes, paths)    |
+| `I` / `U`               | TPM install / update plugins               |
 
 Sessions auto-restore via resurrect + continuum. New to tmux? See
 [TMUX_GUIDE.md](TMUX_GUIDE.md).
@@ -510,7 +502,7 @@ tdl / tsl 4 <cmd>         # tmux layouts: nvim+claude+shell / n panes running cm
 gwa <branch> / gwd        # git worktree add + cd / remove current
 watchsync <dir> <host:p>  # rsync to a device on every file change
 compress <dir>            # dir -> dir.tar.gz
-weather / wifipass / speedtest
+weather / wifipass
 webm2mp4 <file>           # webm -> mp4 (h264/aac)
 iso2sd <iso> /dev/sdX     # write an iso to a drive, with confirmation
 fix_fkeys                 # apple keyboards: F-keys as function keys
@@ -568,7 +560,7 @@ just tune    # zram swap, journald cap, writeback limits, cgroup delegation (nee
 #      export B2_ACCOUNT_KEY="applicationKey"
 # 3. Initialise and schedule:
 backup.sh init
-systemctl --user enable --now backup.timer
+just system                             # enables backup.timer once RESTIC_REPOSITORY is set
 backup.sh snapshots                     # list
 backup.sh restore ~/restore-here        # pull the latest back
 ```
@@ -600,7 +592,7 @@ sudo apt install -y vlc wireshark xournalpp gnome-tweaks gnome-shell-extension-m
 
 ```bash
 # Gaming: just gaming (step in the justfile) installs the stack; then:
-gm <game> / gmhud <game>                # run with GameMode / + FPS overlay
+gmode <game> / gmodehud <game>          # run with GameMode / + FPS overlay
 # Steam launch options: gamemoderun mangohud %command% (prefix prime-run on hybrid)
 # MangoHud toggles with Shift_R+F12; ProtonUp-Qt manages Proton-GE.
 sudo apt install -y retroarch           # extras not in the just target

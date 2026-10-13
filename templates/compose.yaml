@@ -1,5 +1,6 @@
 # Starter dev services - uncomment what you need.
 # Versions = latest stable as of Aug 2026. Bump majors deliberately.
+# Ports bind to 127.0.0.1 so dev services are not exposed on the LAN.
 
 services:
   postgres:
@@ -9,14 +10,25 @@ services:
       POSTGRES_PASSWORD: dev
       POSTGRES_DB: app
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
+    # Postgres 18+ keeps PGDATA in a versioned subdir and refuses a mount at .../data
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev -d app"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   redis:
     image: redis:8
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   # Valkey: BSD-licensed Redis fork (Linux Foundation), wire-compatible drop-in
   # valkey:

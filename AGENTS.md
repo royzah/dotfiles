@@ -1,10 +1,13 @@
 # AGENTS.md
 
-> Project instructions for Codex in this repository.
-> Read at session start. Follow unconditionally. Bullet points only.
+> Single source of truth for every AI agent in this repository (Claude Code,
+> Codex, Gemini CLI, Copilot). Read at session start. Follow unconditionally.
+> Bullet points only.
 
 ## Self-Maintenance
 
+- Edit this file, never `CLAUDE.md`, `GEMINI.md` or
+  `.github/copilot-instructions.md`; those only point here.
 - Populate **Project Context** when you discover structure, conventions, or tooling.
 - Append to **Decision Log** when a significant decision is made.
 - Append to **Learned Conventions** when a pattern is established.
@@ -20,7 +23,8 @@
 - **Key commands:** `just install` (symlink configs) | `just system` (GNOME/desktop)
   | `just update` (update everything) | `just lint` | `just fmt`.
 - **Entry scripts:** `bootstrap.sh` (install every tool, idempotent),
-  `install.sh` (symlink configs, back up existing as `.bak`),
+  `install.sh` (symlink configs, back up existing as `.bak`; tool-written
+  files get a local stub or merge instead, see Gotchas),
   `setup-system.sh` (font, Ghostty, GNOME keys, extensions, systemd),
   `bootstrap-user.sh` (no-sudo install into `$HOME`; `--work` = Copilot, no Claude).
 - **Public repo:** anyone can read it. Hostnames, employer names, work emails,
@@ -79,6 +83,10 @@
   the upstream command dies with SIGPIPE (141), which pipefail surfaces as
   failure - a false negative. Grep a captured variable/here-string instead
   (this silently made `apt_available` skip every gaming package).
+- **Tools write through symlinks into the repo:** `gh`/`glab auth setup-git`
+  append to `~/.gitconfig` and Claude Code rewrites `~/.claude/settings.json`.
+  Never symlink a file a tool writes to; use a local file that includes or
+  merges the tracked one, and check `git diff` for runtime state before committing.
 
 ## Decision Log
 
@@ -91,6 +99,13 @@
   the public repo anonymously; the old history held a former employer's details.
 - 2026-09-19: work laptops are thin clients to a remote build server, set up by
   `bootstrap-user.sh --work` -- no sudo there, and Copilot is the approved AI.
+- 2026-10-13: `AGENTS.md` is the single source for agent instructions; the
+  Claude, Gemini and Copilot files only point to it -- four copies each told
+  their agent to append to its own Decision Log, so they were bound to drift.
+- 2026-10-13: tool-written files (`~/.gitconfig`, `~/.claude/settings.json`)
+  are no longer symlinked; `~/.gitconfig` is a local stub that includes the
+  repo file and Claude settings are jq-merged -- a `glab` credential block
+  written through the symlink leaked the employer hostname into the public repo.
 
 ## Learned Conventions
 

@@ -214,7 +214,7 @@ exec zsh -l
 ```
 
 What `--work` does: writes the marker `~/.config/dotfiles/work`, which
-`hw-profile.sh` exposes as `is_work`. That swaps `cc`, `tdl`, and tmux
+`hw-profile.sh` exposes as `is_work`. That swaps `ai`, `tdl`, and tmux
 `prefix + a` to Copilot, loads LazyVim's Copilot extras instead of
 claudecode.nvim, skips the Claude install and config, and adds the Copilot CLI
 through a machine-local mise file. `just hw` shows `profile: work`.
@@ -257,7 +257,7 @@ Signed in with the **work** GitHub account everywhere:
 
 | Where    | How                                                                      |
 | -------- | ------------------------------------------------------------------------ |
-| Terminal | `copilot`, then `/login`. `cc` runs it too; `ccc` continues last session |
+| Terminal | `copilot`, then `/login`. `ai` runs it too; `aic` continues last session |
 | tmux     | `prefix + a` opens Copilot in a popup in the current directory           |
 | Neovim   | `:Copilot auth` once; inline suggestions plus Copilot Chat on `Space a`  |
 | VS Code  | Copilot and Copilot Chat extensions, agent mode, over Remote-SSH         |
