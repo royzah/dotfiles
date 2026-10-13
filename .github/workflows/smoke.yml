@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - install.sh
+      - bootstrap-user.sh
+      - mise*.toml
       - bin/**
       - claude/**
       - systemd/**
@@ -13,6 +15,8 @@ on:
   pull_request:
     paths:
       - install.sh
+      - bootstrap-user.sh
+      - mise*.toml
       - bin/**
       - claude/**
       - systemd/**
@@ -28,7 +32,13 @@ permissions:
 jobs:
   idempotency:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [personal, work]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - run: tests/smoke.sh
+      - run: tests/smoke.sh ${{ matrix.profile }}
+        env:
+          MISE_GITHUB_TOKEN: ${{ github.token }}

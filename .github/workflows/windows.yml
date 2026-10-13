@@ -1,0 +1,67 @@
+name: windows
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - windows/**
+      - .github/workflows/windows.yml
+  pull_request:
+    paths:
+      - windows/**
+      - .github/workflows/windows.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  laptop:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [personal, work]
+    # Windows PowerShell 5.1: what a fresh laptop runs the script with
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Write-Host is the point of a console script; Set-Reg is a private helper
+      - name: Analyze
+        run: |
+          $r = Invoke-ScriptAnalyzer -Path windows/laptop.ps1 -Severity Warning,Error `
+            -ExcludeRule PSAvoidUsingWriteHost,PSUseShouldProcessForStateChangingFunctions
+          $r | Format-Table -AutoSize
+          if ($r) { exit 1 }
+
+      # A work run would prompt for a key passphrase
+      - name: Pre-create SSH key
+        if: matrix.profile == 'work'
+        run: ssh-keygen -q -t ed25519 -N '""' -f "$env:USERPROFILE\.ssh\id_ed25519"
+
+      - name: Run twice
+        run: |
+          $a = if ('${{ matrix.profile }}' -eq 'work') { @{ BuildHost = 'build.example' } } else { @{} }
+          foreach ($i in 1, 2) {
+            Write-Host "--- run $i"
+            & .\windows\laptop.ps1 @a *>&1 | Tee-Object -Variable out | Out-Host
+          }
+          $s = $out | Out-String
+          if ($s -match 'added:|wrote:|new key|installed \(per user\)') { throw 'second run redid work' }
+
+      - name: Check outputs
+        run: |
+          $frag = "$env:LOCALAPPDATA\Microsoft\Windows Terminal\Fragments\dotfiles\dotfiles.json"
+          $j = Get-Content $frag -Raw | ConvertFrom-Json
+          if ($j.schemes[0].name -ne 'Catppuccin Mocha') { throw 'scheme missing' }
+          $wsl = Test-Path "$env:USERPROFILE\.wslconfig"
+          if ('${{ matrix.profile }}' -eq 'work') {
+            if ($j.profiles[0].name -ne 'Build server') { throw 'Build server profile missing' }
+            if ((Select-String "$env:USERPROFILE\.ssh\config" -Pattern '^Host build$').Count -ne 1) { throw 'Host build not added once' }
+            if ($wsl) { throw '.wslconfig written on work' }
+          } elseif (-not $wsl) { throw '.wslconfig missing' }
+          Write-Host 'ok'
