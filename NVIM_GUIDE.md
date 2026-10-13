@@ -1,635 +1,239 @@
-# Neovim + LazyVim Guide
-
-Reference for this exact config (LazyVim, leader = `Space`, which-key on `Space`).
-
-## Table of Contents
-
-- [1. Modes and Survival](#1-modes-and-survival)
-- [2. Movement](#2-movement)
-- [3. Editing](#3-editing)
-- [4. The Vim Grammar](#4-the-vim-grammar)
-- [5. Visual Mode](#5-visual-mode)
-- [6. Clipboard and Registers](#6-clipboard-and-registers)
-- [7. Search and Replace](#7-search-and-replace)
-- [8. Files, Buffers, Explorers](#8-files-buffers-explorers)
-- [9. Pickers](#9-pickers)
-- [10. Harpoon](#10-harpoon)
-- [11. LSP](#11-lsp)
-- [12. Completion and Snippets](#12-completion-and-snippets)
-- [13. Git](#13-git)
-- [14. Debugging and Testing](#14-debugging-and-testing)
-- [15. Terminal](#15-terminal)
-- [16. Windows, Splits, Tmux](#16-windows-splits-tmux)
-- [17. Plugins (lazy.nvim)](#17-plugins-lazynvim)
-- [18. LazyVim Extras](#18-lazyvim-extras)
-- [19. Utilities](#19-utilities)
-- [20. Mason and Troubleshooting](#20-mason-and-troubleshooting)
-- [21. Config Structure and Customizing](#21-config-structure-and-customizing)
-- [22. Database (Dadbod)](#22-database-dadbod)
-- [23. AI (Claude Code)](#23-ai-claude-code)
-- [24. VS Code Habits Translation](#24-vs-code-habits-translation)
-- [Quick Reference Card](#quick-reference-card)
-
-## 1. Modes and Survival
-
-| Mode    | Enter with         | Purpose        |
-| ------- | ------------------ | -------------- |
-| Normal  | `Esc` or `jk`      | navigate, edit |
-| Insert  | `i`, `a`, `o`      | type text      |
-| Visual  | `v`, `V`, `Ctrl-v` | select text    |
-| Command | `:`                | run commands   |
-
-| Task                | Keys              |
-| ------------------- | ----------------- |
-| Insert text         | `i`               |
-| Back to Normal      | `jk` or `Esc`     |
-| Save                | `Ctrl-s` or `:w`  |
-| Quit                | `:q`              |
-| Save and quit       | `:wq`             |
-| Quit without saving | `:q!`             |
-| Quit everything     | `Space Q`         |
-| Undo / redo         | `u` / `Ctrl-r`    |
-| Find file           | `Space Space`     |
-| File explorer       | `Space e`         |
-
-Stuck: mash `Esc`, `:q!` force-quits, `:e` reloads a garbled screen.
-
-## 2. Movement
-
-| Key                      | Movement                                     |
-| ------------------------ | -------------------------------------------- |
-| `h j k l`                | left / down / up / right                     |
-| `w` / `b` / `e`          | next word / prev word / end of word          |
-| `W` / `B`                | WORD, skips punctuation                      |
-| `0` / `^` / `$`          | line start / first non-space / line end      |
-| `f{c}` / `t{c}` / `F{c}` | to char / before char / backward to char     |
-| `;`                      | repeat last f/t/F/T                          |
-| `Ctrl-d` / `Ctrl-u`      | half page down / up (centered)               |
-| `gg` / `G`               | top / bottom of file                         |
-| `{` / `}`                | prev / next blank line                       |
-| `%`                      | matching bracket                             |
-| `123G`                   | go to line 123                               |
-| `s`                      | flash: type 1-2 chars, then the label letter |
-
-## 3. Editing
-
-**Insert mode entry:**
-
-| Key       | Action                       |
-| --------- | ---------------------------- |
-| `i` / `a` | insert before / after cursor |
-| `I` / `A` | insert at line start / end   |
-| `o` / `O` | new line below / above       |
-| `s`       | delete char, insert          |
-
-**Delete / change / yank:**
-
-| Key                           | Action                                       |
-| ----------------------------- | -------------------------------------------- |
-| `x`                           | delete char                                  |
-| `dd` / `dw` / `D`             | delete line / to next word / to line end     |
-| `cc` / `cw` / `C`             | change line / word / to line end             |
-| `ciw` / `ci"` / `ci(` / `ci{` | change inner word / quotes / parens / braces |
-| `yy` / `yw` / `y$`            | yank line / word / to line end               |
-| `p` / `P`                     | paste after / before                         |
-
-**Misc:**
-
-| Key            | Action               |
-| -------------- | -------------------- |
-| `u` / `Ctrl-r` | undo / redo          |
-| `.`            | repeat last edit     |
-| `r{c}`         | replace one char     |
-| `~`            | toggle case          |
-| `J`            | join with line below |
-| `>>` / `<<`    | indent right / left  |
-
-## 4. The Vim Grammar
-
-Pattern: `[count] + verb + motion/object`.
-
-| Verbs     |              | Motions    |                   | Text objects   |                        |
-| --------- | ------------ | ---------- | ----------------- | -------------- | ---------------------- |
-| `d`       | delete (cut) | `w` / `b`  | next / prev word  | `iw` / `aw`    | inner / a word         |
-| `c`       | change       | `0` / `$`  | line start / end  | `i"` / `a"`    | inside / around quotes |
-| `y`       | yank (copy)  | `}`        | next paragraph    | `i(` `i{` `i[` | inside brackets        |
-| `v`       | select       | `gg` / `G` | file top / bottom | `it`           | inside HTML tag        |
-| `>` / `<` | indent       | `%`        | matching bracket  | `ip` / `is`    | paragraph / sentence   |
-
-| Command | Result                     |
-| ------- | -------------------------- |
-| `d3w`   | delete next 3 words        |
-| `ciw`   | replace word under cursor  |
-| `ci"`   | replace text inside quotes |
-| `da(`   | delete parens and contents |
-| `yi{`   | copy inside braces         |
-| `>ip`   | indent paragraph           |
-| `ct;`   | change up to `;`           |
-| `vip`   | select paragraph           |
-
-## 5. Visual Mode
-
-**Start a selection:**
-
-| Key                  | Selection           |
-| -------------------- | ------------------- |
-| `v` / `V` / `Ctrl-v` | char / line / block |
-
-**On a selection:**
-
-| Key             | Action                       |
-| --------------- | ---------------------------- |
-| `d` / `y` / `c` | delete / yank / change       |
-| `>` / `<`       | indent right / left          |
-| `u` / `U`       | lowercase / uppercase        |
-| `:`             | run a command on those lines |
-
-Block edit (multi-cursor): `Ctrl-v`, extend with `j`/`k`, `I` or `A`, type, `Esc`.
-
-## 6. Clipboard and Registers
-
-LazyVim sets `clipboard = "unnamedplus"`: yank and paste are the system
-clipboard. `Ctrl+Shift+C/V` are Ghostty bindings, not nvim's; visual `p` is
-remapped to `"_dP` so it does not clobber the clipboard.
-
-**Clipboard:**
-
-| Scenario                     | How                                    |
-| ---------------------------- | -------------------------------------- |
-| Copy in nvim                 | `y` (or `yy`, `yiw`, `yi"`)            |
-| Paste in nvim                | `p` / `P`                              |
-| nvim to other app            | `y`, then `Ctrl+Shift+V` in the app    |
-| Other app to nvim            | `Ctrl+Shift+C` in the app, then `p`    |
-| Paste in Insert/Command mode | `Ctrl+Shift+V` (mapped in keymaps.lua) |
-
-**Registers:**
-
-| Register  | Contents                                     |
-| --------- | -------------------------------------------- |
-| `"`       | default (used by `y` and `d`)                |
-| `+`       | system clipboard (synced)                    |
-| `0`       | last yank (deletes skip it); `"0p` pastes it |
-| `"a`-`"z` | named slots: `"ay` to yank, `"ap` to paste   |
-
-## 7. Search and Replace
-
-| Key             | Action                              |
-| --------------- | ----------------------------------- |
-| `/pat` / `?pat` | search forward / backward           |
-| `n` / `N`       | next / prev match (centered)        |
-| `*` / `#`       | search word under cursor fwd / back |
-| `Space /`       | live grep all files                 |
-| `Space s`+...   | more search pickers                 |
-
-`hlsearch = false`; select with `V` first to limit `:s` to those lines.
-
-| Key                 | Replace                                               |
-| ------------------- | ----------------------------------------------------- |
-| `:s/old/new/g`      | current line                                          |
-| `:%s/old/new/g`     | whole file (add `c` to confirm each)                  |
-| `Space sr`          | grug-far project-wide find and replace (live preview) |
-| `Space sr` (visual) | grug-far with selection                               |
-| `Space cr`          | LSP rename - prefer for identifiers                   |
-
-## 8. Files, Buffers, Explorers
-
-| Key                     | Action                      |
-| ----------------------- | --------------------------- |
-| `Space ,`               | list open buffers           |
-| `Space Space`           | fuzzy find file             |
-| `[b` / `]b`             | prev / next buffer          |
-| `Space bd` / `Space bD` | close buffer / close others |
-| `Space fn`              | new file                    |
-| `Space fr`              | recent files                |
-| `gf`                    | open file path under cursor |
-
-**Neo-tree sidebar (`Space e`):**
-
-| Key             | Action                         |
-| --------------- | ------------------------------ |
-| `Enter`         | open / expand                  |
-| `a` / `d` / `r` | create / delete / rename       |
-| `c` / `m`       | copy / move                    |
-| `y` / `Y`       | copy filename / relative path  |
-| `H` / `/` / `q` | toggle hidden / filter / close |
-
-Oil (`-`): parent dir as an editable buffer. Edit names to rename, `dd` to
-delete, add a line to create, `:w` to apply.
-
-## 9. Pickers
-
-| Key           | Searches          |
-| ------------- | ----------------- |
-| `Space Space` | files by name     |
-| `Space /`     | text in all files |
-| `Space ,`     | open buffers      |
-| `Space fr`    | recent files      |
-| `Space sg`    | grep string       |
-| `Space sw`    | word under cursor |
-| `Space sd`    | diagnostics       |
-| `Space sk`    | keymaps           |
-| `Space sh`    | help tags         |
-| `Space sc`    | command history   |
-| `Space st`    | TODOs             |
-
-Inside a picker: type to filter, `Ctrl-j`/`Ctrl-k` move, `Enter` open,
-`Ctrl-x`/`Ctrl-v` open in split, `Esc` close.
-
-## 10. Harpoon
-
-| Key                 | Action                  |
-| ------------------- | ----------------------- |
-| `Space H`           | add current file        |
-| `Space h`           | menu (reorder / remove) |
-| `Space 1`-`Space 9` | jump to file 1-9        |
-
-## 11. LSP
-
-**Navigation:**
-
-| Key               | Action           |
-| ----------------- | ---------------- |
-| `gd`              | go to definition |
-| `gr`              | references       |
-| `gI`              | implementation   |
-| `gy`              | type definition  |
-| `gD`              | declaration      |
-| `K`               | hover docs       |
-| `gK`              | signature help   |
-| `Ctrl-k` (Insert) | signature help   |
-
-**Actions and diagnostics:**
-
-| Key                     | Action                     |
-| ----------------------- | -------------------------- |
-| `Space ca`              | code actions (quick fixes) |
-| `Space cr`              | rename symbol              |
-| `Space cf`              | format file                |
-| `Space cd`              | line diagnostics           |
-| `]d` / `[d`             | next / prev diagnostic     |
-| `]e` / `[e`             | next / prev error          |
-| `]w` / `[w`             | next / prev warning        |
-| `Space xx` / `Space xX` | Trouble list / buffer only |
-
-**Format on save (conform.nvim; mostly set by LazyVim and its extras):**
-
-| Language                    | Formatter                          |
-| --------------------------- | ---------------------------------- |
-| Go                          | gofumpt, goimports                 |
-| Python                      | ruff_format, ruff_organize_imports |
-| JS/TS/JSON/YAML/MD/HTML/CSS | prettier                           |
-| C/C++                       | clang-format (clangd)              |
-| Nix                         | alejandra                          |
-| Lua                         | stylua                             |
-| Shell                       | shfmt                              |
-| Terraform                   | terraform_fmt                      |
-| Rust                        | rustfmt                            |
-
-**Lint on save (nvim-lint, plus LSP diagnostics):**
-
-| Language   | Linter                  |
-| ---------- | ----------------------- |
-| Go         | golangci-lint           |
-| Python     | ruff (LSP)              |
-| JS/TS      | eslint (LSP)            |
-| Shell      | shellcheck              |
-| Dockerfile | hadolint                |
-| YAML       | yamllint                |
-| Terraform  | tflint                  |
-| Ansible    | ansible-lint            |
-
-## 12. Completion and Snippets
-
-| Key                 | Action                 |
-| ------------------- | ---------------------- |
-| `Ctrl-n` / `Ctrl-p` | next / prev suggestion |
-| `Enter` or `Tab`    | accept                 |
-| `Ctrl-e`            | close menu             |
-| `Ctrl-Space`        | trigger manually       |
-
-Sources: LSP, snippets, buffer words, paths. LuaSnip + friendly-snippets: type
-the prefix, then `Tab`/`Shift-Tab` between placeholders.
-
-| Language   | Prefix    | Expands to                       |
-| ---------- | --------- | -------------------------------- |
-| JS         | `cl`      | `console.log();`                 |
-| JS         | `asyncfn` | async function template          |
-| TypeScript | `int`     | interface template               |
-| Python     | `def`     | function with docstring          |
-| Go         | `err`     | `if err != nil { return }` block |
-
-## 13. Git
-
-**LazyGit (`Space gg`):**
-
-| Key             | Action                         |
-| --------------- | ------------------------------ |
-| `1`-`5`         | switch panels                  |
-| `Space` / `a`   | stage/unstage file / stage all |
-| `c` / `p` / `P` | commit / pull / push           |
-| `Enter`         | view diff / expand             |
-| `d`             | discard changes                |
-| `b`             | branch actions                 |
-| `?` / `q`       | help / quit                    |
-
-**Gitsigns (inline blame is on):**
-
-| Key                       | Action             |
-| ------------------------- | ------------------ |
-| `]h` / `[h`               | next / prev hunk   |
-| `Space ghs` / `Space ghr` | stage / reset hunk |
-| `Space ghp`               | preview hunk       |
-| `Space ghb`               | blame line (full)  |
-
-**Diffview:**
-
-| Key                     | Action                        |
-| ----------------------- | ----------------------------- |
-| `Space gd`              | open diffview (all changes)   |
-| `Space gF` / `Space gH` | file history / branch history |
-| `Space gq`              | close                         |
-
-**Fugitive:**
-
-| Key        | Action                    |
-| ---------- | ------------------------- |
-| `Space gB` | blame full file           |
-| `Space gD` | side-by-side diff of file |
-| `Space gl` | one-line git log          |
-
-Fugitive commands: `:Git blame`, `:Git log`, `:Gvdiffsplit`, `:Gread`, `:Gwrite`.
-
-## 14. Debugging and Testing
-
-Adapters: delve (Go), debugpy (Python), js-debug-adapter (JS/TS); the DAP UI
-opens and closes with the session.
-
-| Key        | Action                      |
-| ---------- | --------------------------- |
-| `Space db` | toggle breakpoint           |
-| `Space dB` | conditional breakpoint      |
-| `Space dc` | continue / start            |
-| `Space di` | step into                   |
-| `Space do` | step over                   |
-| `Space dO` | step out                    |
-| `Space du` | toggle DAP UI               |
-| `Space de` | evaluate (normal or visual) |
-| `Space dr` | toggle REPL                 |
-| `Space dl` | run last config             |
-
-**Extra debug configs:**
-
-| Language | Config                    | Purpose                       |
-| -------- | ------------------------- | ----------------------------- |
-| Go       | "Debug test (file)"       | debug current test file       |
-| Go       | "Debug package"           | debug current package         |
-| Python   | "Launch file (auto venv)" | detects .venv or $VIRTUAL_ENV |
-| JS/TS    | "Attach to process"       | attach to running Node        |
-
-**Testing (neotest):**
-
-| Key        | Action                |
-| ---------- | --------------------- |
-| `Space tr` | run nearest test      |
-| `Space tt` | run all tests in file |
-| `Space ts` | toggle summary panel  |
-| `Space to` | show output           |
-
-## 15. Terminal
-
-| Key                     | Action                                |
-| ----------------------- | ------------------------------------- |
-| `Ctrl-\`                | toggle floating terminal (ToggleTerm) |
-| `Esc`                   | exit terminal mode to Normal          |
-| `Space ft` / `Space fT` | LazyVim terminal (root dir / cwd)     |
-
-## 16. Windows, Splits, Tmux
-
-| Key                    | Action                                                  |
-| ---------------------- | ------------------------------------------------------- |
-| `Ctrl-h/j/k/l`         | move between splits AND tmux panes (vim-tmux-navigator) |
-| `Space -` / `Space \|` | horizontal / vertical split                             |
-| `Space wd`             | close current split                                     |
-| `Ctrl-w =`             | equalize splits                                         |
-
-## 17. Plugins (lazy.nvim)
-
-**`:Lazy` manager:**
-
-| Key       | Action                      |
-| --------- | --------------------------- |
-| `S`       | sync (install + update)     |
-| `U` / `I` | update / install missing    |
-| `X`       | clean unused                |
-| `C`       | check for updates           |
-| `L` / `P` | logs / profile (load times) |
-| `R`       | restore after a bad update  |
-| `q`       | close                       |
-
-Add a plugin: `{ "username/plugin-name", opts = {} }` in `plugins/user.lua`,
-then `:Lazy sync`. Remove: delete the entry, `:Lazy clean`. Disable a LazyVim
-default: `{ "some/plugin", enabled = false }`.
-
-**Lazy-loading triggers (why a plugin seems missing until used):**
-
-| Trigger                 | Loads           | Examples here                                   |
-| ----------------------- | --------------- | ----------------------------------------------- |
-| `lazy = false`          | at startup      | catppuccin, vim-tmux-navigator                  |
-| `event = "BufReadPost"` | on file open    | gitsigns, colorizer, treesitter-context         |
-| `event = "InsertEnter"` | entering Insert | better-escape                                   |
-| `ft = ...`              | per filetype    | markdown-preview, nvim-bqf (qf)                 |
-| `cmd = ...`             | on command      | Oil, Diffview, DBUI, Fugitive, ZenMode          |
-| `keys = ...`            | on keypress     | undotree, DAP, neotest, Claude Code             |
-
-## 18. LazyVim Extras
-
-`:LazyExtras` lists extras; `x` toggles one. Saved to `lazyvim.json`.
-
-| Extra                 | Provides                                     |
-| --------------------- | -------------------------------------------- |
-| `lang.go`             | gopls, gofumpt, goimports, delve, neotest-go |
-| `lang.python`         | basedpyright, debugpy, neotest-python        |
-| `lang.typescript`     | vtsls, prettier, js-debug-adapter            |
-| `lang.rust`           | rust-analyzer, rustfmt, crates.nvim          |
-| `lang.docker`         | Dockerfile LSP, compose LSP                  |
-| `lang.terraform`      | terraform-ls, tflint                         |
-| `lang.helm`           | Helm templates                               |
-| `lang.yaml`           | yamlls with schemas                          |
-| `lang.json`           | jsonls with schemas                          |
-| `lang.markdown`       | markdown LSP, preview                        |
-| `lang.tailwind`       | Tailwind IntelliSense                        |
-| `lang.ansible`        | ansible-language-server                      |
-| `lang.toml`           | taplo                                        |
-| `lang.nix`            | nil LSP (formatting: alejandra)              |
-| `lang.cmake`          | neocmake LSP, cmakelint                      |
-| `lang.clangd`         | clangd, clang-format, codelldb               |
-| `formatting.prettier` | prettier                                     |
-| `linting.eslint`      | eslint LSP                                   |
-| `test.core`           | neotest framework                            |
-| `dap.core`            | DAP framework + UI                           |
-| `editor.harpoon2`     | Harpoon v2                                   |
-| `coding.luasnip`      | LuaSnip snippet engine                       |
-
-## 19. Utilities
-
-| Plugin             | What it does                     | Use                     |
-| ------------------ | -------------------------------- | ----------------------- |
-| mini.surround      | add/delete/change surroundings   | `gsa"`, `gsd"`, `gsr"'` |
-| undotree           | visual undo history              | `Space U`               |
-| zen-mode           | distraction-free view            | `Space z`               |
-| markdown-preview   | live browser preview (.md)       | `Space mp`              |
-| treesitter-context | sticky function headers          | `Space ut` toggle       |
-| todo-comments      | highlight/search TODO/FIXME/HACK | `Space st`, `]t`/`[t`   |
-| snacks.words       | highlight word occurrences       | automatic               |
-| nvim-colorizer     | inline hex colors                | automatic               |
-| nvim-bqf           | better quickfix windows          | automatic               |
-
-## 20. Mason and Troubleshooting
-
-**`:Mason` UI:**
-
-| Key             | Action                       |
-| --------------- | ---------------------------- |
-| `i` / `u` / `X` | install / update / uninstall |
-| `U`             | update all                   |
-| `1`-`5`         | filter by category           |
-| `g?`            | help                         |
-| `q`             | close                        |
-
-**Diagnose:**
-
-| Command        | Shows                              |
-| -------------- | ---------------------------------- |
-| `:LspInfo`     | servers attached to this buffer    |
-| `:Mason`       | installed / missing tools          |
-| `:checkhealth` | general health check               |
-| `:Lazy`        | plugin status (green dot = loaded) |
-| `:ConformInfo` | formatters for this buffer         |
-| `Space sk`     | searchable list of every keymap    |
-| `:help {kw}`   | docs for a keyword                 |
-
-Extras install their own tools (gofumpt, ruff, prettier, clangd, delve, ...);
-`plugins/lsp.lua` adds only shellcheck, yamllint, ansible-lint and alejandra.
-
-## 21. Config Structure and Customizing
+# Neovim Guide
+
+LazyVim with this repo's config. Leader is `Space`; press it and wait for
+which-key. Install and updates: [LINUX_GUIDE.md](LINUX_GUIDE.md).
+
+- [Survive](#survive) - [Move and edit](#move-and-edit) - [Files](#files) -
+  [Code](#code) - [Languages](#languages) - [Git](#git) -
+  [Debug and test](#debug-and-test) - [AI](#ai) - [Tools](#tools) -
+  [Config](#config) - [Troubleshoot](#troubleshoot) - [From VS Code](#from-vs-code)
+
+## Survive
+
+| Mode    | Enter with                         | Leave        |
+| ------- | ---------------------------------- | ------------ |
+| Normal  | default                            |              |
+| Insert  | `i` `a` `o` (`I` `A` `O`)          | `jk` / `Esc` |
+| Visual  | `v` char, `V` line, `Ctrl-v` block | `Esc`        |
+| Command | `:`                                | `Esc`        |
+
+| Do                           | Keys                            |
+| ---------------------------- | ------------------------------- |
+| Save / quit / both / discard | `Ctrl-s` / `:q` / `:wq` / `:q!` |
+| Quit everything              | `Space Q`                       |
+| Undo / redo / repeat edit    | `u` / `Ctrl-r` / `.`            |
+| Find file / explorer         | `Space Space` / `Space e`       |
+| Every keymap, searchable     | `Space sk`                      |
+
+## Move and edit
+
+| Move                     | Keys                                           |
+| ------------------------ | ---------------------------------------------- |
+| char / word / WORD       | `h j k l` / `w b e` / `W B` (skip punctuation) |
+| line start / text / end  | `0` / `^` / `$`                                |
+| to / before char, repeat | `f{c}` `F{c}` / `t{c}` / `;`                   |
+| half page (centered)     | `Ctrl-d` / `Ctrl-u`                            |
+| file top / bottom / line | `gg` / `G` / `123G`                            |
+| paragraph / bracket      | `{` `}` / `%`                                  |
+| anywhere on screen       | `s`, type 1-2 chars, then the label (flash)    |
+
+Edits are `[count] verb motion-or-object`:
+
+| Verbs                  | Objects (`i` inner, `a` around)       | Examples                     |
+| ---------------------- | ------------------------------------- | ---------------------------- |
+| `d` delete, `c` change | `iw` word, `i"` quotes                | `d3w`, `ciw`, `ci"`          |
+| `y` yank, `v` select   | `i(` `i{` `i[` brackets, `it` tag     | `da(`, `yi{`, `vip`          |
+| `>` `<` indent         | `ip` paragraph, `is` sentence         | `>ip`, `ct;` (up to `;`)     |
+| doubled = whole line   | `dd` `cc` `yy` `>>`; `D` `C` = to end | `p` / `P` paste after/before |
+
+Singles: `x` delete char, `r{c}` replace char, `~` toggle case, `J` join
+lines, `gcc` / `gc{motion}` comment. Visual selection: `d y c > <`, `u`/`U`
+case, `:` runs a command on those lines. Block insert: `Ctrl-v`, `j`/`k`,
+`I` or `A`, type, `Esc`. Macro: `qq` record, `q` stop, `@q` replay.
+
+**Search and replace** (`hlsearch` is off; `n`/`N` center the match):
+
+| Keys                         | Does                                               |
+| ---------------------------- | -------------------------------------------------- |
+| `/pat` `?pat`, `*` `#`       | search fwd / back, word under cursor fwd / back    |
+| `:s/a/b/g`, `:%s/a/b/gc`     | line, whole file with confirm (`V` first to limit) |
+| `*`, `cgn`, type, `Esc`, `.` | change each next match; `n` skips one              |
+| `Space sr` (also visual)     | project-wide replace with preview (grug-far)       |
+| `Space cr`                   | LSP rename: use it for identifiers                 |
+
+**Clipboard:** `y`/`p` are the system clipboard, except over SSH, where
+LazyVim leaves it off: use `"+y` there, which reaches the local clipboard by
+OSC 52 (tmux passes it through). Visual `p` does not overwrite the clipboard.
+`Ctrl+Shift+V` pastes in Insert and Command mode. `"0p` pastes the last yank
+(deletes skip register `0`); `"ay` / `"ap` use named register `a`.
+
+## Files
+
+| Keys                                | Does                                                  |
+| ----------------------------------- | ----------------------------------------------------- |
+| `Space Space` / `Space /`           | find file / grep all files                            |
+| `Space ,` / `Space fr`              | open buffers / recent files                           |
+| `Space sg` `sw` `sd` `st` `sh` `sc` | grep, word, diagnostics, TODOs, help, command history |
+| `[b` / `]b`                         | prev / next buffer                                    |
+| `Space bd` `bo` `bD`                | close buffer / others / buffer and window             |
+| `Space fn`, `gf`                    | new file, open path under cursor                      |
+| `Space H`, `Space h`                | harpoon: add file, menu                               |
+| `Space 1`-`Space 9`                 | harpoon: jump to file 1-9                             |
+| `-`                                 | Oil: parent dir as a buffer, edit names, `:w` applies |
+
+Pickers: type to filter, `Ctrl-j`/`Ctrl-k` move, `Enter` open, `Ctrl-s` /
+`Ctrl-v` split / vsplit, `Esc` close.
+
+Explorer (`Space e` root, `Space E` cwd): `l`/`h` open/close, `a` add, `d`
+delete, `r` rename, `c` copy, `m` move, `y`/`p` yank/paste, `H` hidden, `I`
+ignored, `P` preview, `Backspace` up.
+
+| Windows and terminal              | Keys                            |
+| --------------------------------- | ------------------------------- |
+| move across splits AND tmux panes | `Ctrl-h/j/k/l`                  |
+| split below / right               | `Space -` / `Space \|`          |
+| close split, equalize             | `Space wd`, `Ctrl-w =`          |
+| floating terminal                 | `Ctrl-\` (`Esc` to Normal mode) |
+| terminal (root / cwd)             | `Space ft` / `Space fT`         |
+
+## Code
+
+| Keys                         | Does                                                      |
+| ---------------------------- | --------------------------------------------------------- |
+| `gd` `gr` `gI` `gy` `gD`     | definition, references, implementation, type, declaration |
+| `K`, `gK`, `Ctrl-k` (Insert) | hover, signature help                                     |
+| `Space ca` `cr` `cf`         | code action, rename, format                               |
+| `Space cd`, `]d` `[d`        | line diagnostics, next / prev                             |
+| `]e` `[e`, `]w` `[w`         | next / prev error, warning                                |
+| `Space xx` / `xX`            | Trouble: all / this buffer                                |
+
+Completion (blink.cmp): `Ctrl-n`/`Ctrl-p` move, `Enter` accept, `Ctrl-e`
+close, `Ctrl-Space` open. Snippets: type the prefix, `Tab`/`Shift-Tab` between
+placeholders. Own snippets: JS `cl` (console.log), `asyncfn`; TS `int`
+(interface); Python `def` (with docstring); Go `err` (`if err != nil`).
+
+## Languages
+
+Extras in `lazyvim.json` install their own tools through Mason. Formatting
+runs on save.
+
+| Language  | LSP                                              | Format                         | Lint              | Debug / test            |
+| --------- | ------------------------------------------------ | ------------------------------ | ----------------- | ----------------------- |
+| Go        | gopls (gofumpt, staticcheck, hints)              | gofumpt, goimports             | golangci-lint     | delve, neotest-golang   |
+| Python    | pyright, ruff                                    | ruff format + organize imports | ruff              | debugpy, neotest-python |
+| JS / TS   | vtsls (inlay hints), eslint                      | prettier                       | eslint            | js-debug-adapter        |
+| Rust      | rust-analyzer, crates.nvim                       | rustfmt                        | LSP               | codelldb                |
+| C / C++   | clangd                                           | clang-format                   | LSP               | codelldb                |
+| CMake     | neocmake                                         |                                | cmakelint         |                         |
+| Nix       | nil                                              | alejandra                      |                   |                         |
+| Shell     |                                                  | shfmt                          | shellcheck        |                         |
+| Lua       | lua_ls                                           | stylua                         |                   |                         |
+| Docker    | dockerls, compose LSP                            |                                | hadolint          |                         |
+| YAML      | yamlls (Actions, kustomize, k8s schemas)         | prettier                       | yamllint          |                         |
+| Terraform | terraformls                                      | terraform_fmt                  | tflint            |                         |
+| Ansible   | ansiblels                                        |                                | ansible-lint      |                         |
+| Markdown  | marksman                                         | prettier                       | markdownlint-cli2 |                         |
+| Also      | jsonls, taplo, helm_ls, tailwindcss, html, cssls | prettier                       |                   |                         |
+
+## Git
+
+| Keys                          | Does                                                            |
+| ----------------------------- | --------------------------------------------------------------- |
+| `Space gg`                    | LazyGit: `Space` stage, `c` commit, `p`/`P` pull/push, `?` help |
+| `]h` `[h`                     | next / prev hunk (inline blame is on)                           |
+| `Space ghs` `ghr` `ghp` `ghb` | hunk: stage, reset, preview, blame line                         |
+| `Space gd`, `gq`              | Diffview: all changes, close                                    |
+| `Space gF` / `gH`             | Diffview: file history / branch history                         |
+| `Space gB` `gD` `gl`          | Fugitive: blame file, diff split, one-line log                  |
+
+## Debug and test
+
+| Keys                      | Does                                 |
+| ------------------------- | ------------------------------------ |
+| `Space db` / `dB`         | breakpoint / conditional breakpoint  |
+| `Space dc`, `dl`          | continue or start, run last          |
+| `Space di` `do` `dO`      | step into, over, out                 |
+| `Space du` `de` `dr`      | DAP UI, evaluate (also visual), REPL |
+| `Space tr` `tt` `ts` `to` | test: nearest, file, summary, output |
+
+Extra launch configs: Go "Debug test (file)" and "Debug package"; Python
+"Launch file (auto venv)" uses `$VIRTUAL_ENV` or `.venv`; JS/TS "Attach to
+process".
+
+## AI
+
+Personal machines get Claude Code; work machines (`bootstrap-user.sh --work`)
+get Copilot instead, and the Claude plugin is not loaded.
+
+| Claude Code (`claudecode.nvim`) | Keys                             |
+| ------------------------------- | -------------------------------- |
+| toggle / focus                  | `Space ac` / `Space af`          |
+| resume / continue session       | `Space ar` / `Space aC`          |
+| add buffer / send selection     | `Space ab` / `Space as` (visual) |
+| accept / deny diff              | `Space aa` / `Space ad`          |
+
+Copilot: suggestions appear in the completion menu. Chat: `Space aa` toggle,
+`Space aq` quick chat, `Space ap` prompts, `Space ax` clear, `Ctrl-s` submit.
+
+Without nvim: `claude` in a tmux popup ([TMUX_GUIDE.md](TMUX_GUIDE.md)).
+
+## Tools
+
+| Keys / trigger | Does                                                                       |
+| -------------- | -------------------------------------------------------------------------- |
+| `Space U`      | undo tree                                                                  |
+| `Space z`      | zen mode                                                                   |
+| `Space mp`     | markdown preview in the browser                                            |
+| `Space ut`     | toggle sticky function headers                                             |
+| `]t` `[t`      | next / prev TODO, FIXME, HACK                                              |
+| `Space D`      | database UI (dadbod): add a `postgres://` URL, run SQL in a scratch buffer |
+| automatic      | word highlights, inline hex colors, better quickfix                        |
+
+## Config
 
 ```text
 ~/.config/nvim/
-  init.lua            -- entry point: loads config.lazy
-  lazyvim.json        -- LazyVim extras (:LazyExtras)
-  stylua.toml         -- Lua formatter config
-  lua/config/
-    lazy.lua          -- lazy.nvim bootstrap
-    options.lua       -- vim options
-    keymaps.lua       -- custom key mappings
-    autocmds.lua      -- autocmds (filetype settings, save hooks)
-  lua/plugins/
-    user.lua          -- theme, nav, git, format, lint, tools, UI
-    lsp.lua           -- LSP server settings + Mason ensure_installed
-    snippets.lua      -- custom LuaSnip snippets
-    dap-config.lua    -- extra debug configurations
-    claudecode.lua    -- Claude Code integration
+  lazyvim.json            extras (:LazyExtras, x toggles)
+  lua/config/options.lua  tabstop 2, no hlsearch, colorcolumn 120, treesitter folds (off)
+  lua/config/keymaps.lua  own keymaps
+  lua/config/autocmds.lua Python 4 spaces, Go tabs, strip trailing space on save
+  lua/plugins/user.lua    theme, plugins, formatters, linters
+  lua/plugins/lsp.lua     server settings, extra Mason tools
+  lua/plugins/snippets.lua, dap-config.lua, claudecode.lua
 ```
 
-| I want to...           | Edit                              |
-| ---------------------- | --------------------------------- |
-| add/change keybindings | `config/keymaps.lua`              |
-| change editor options  | `config/options.lua`              |
-| add/remove plugins     | `plugins/user.lua`                |
-| configure LSP servers  | `plugins/lsp.lua`                 |
-| add snippets           | `plugins/snippets.lua`            |
-| add debug configs      | `plugins/dap-config.lua`          |
-| toggle language extras | `:LazyExtras`                     |
-| disable a plugin       | `enabled = false` in plugin files |
-
-Keybinding pattern; `desc` makes it show in which-key:
+New keymap (`desc` shows it in which-key):
 
 ```lua
 vim.keymap.set("n", "<leader>xx", "<cmd>SomeCommand<cr>", { desc = "Description" })
 ```
 
-`options.lua`: `tabstop = 2`, `hlsearch = false`, `colorcolumn = "120"`,
-treesitter folds, undodir at `~/.vim/undodir`. `autocmds.lua`: Python 4-space,
-Go tabs, trailing whitespace stripped on write.
+Plugin: add `{ "user/repo", opts = {} }` to `plugins/user.lua`, then `:Lazy
+sync`; delete the entry and `:Lazy clean` to remove; `enabled = false`
+disables a LazyVim default. A plugin with `cmd`, `keys`, `ft` or `event` loads
+only when that fires, so it can look missing until used.
 
-## 22. Database (Dadbod)
+## Troubleshoot
 
-| Key       | Action       |
-| --------- | ------------ |
-| `Space D` | toggle DB UI |
+| Command        | Shows                                                              |
+| -------------- | ------------------------------------------------------------------ |
+| `:Lazy`        | plugins: `S` sync, `U` update, `X` clean, `R` restore, `P` profile |
+| `:Mason`       | tools: `i` install, `u` update, `U` all, `X` remove                |
+| `:LspInfo`     | servers attached to this buffer                                    |
+| `:ConformInfo` | formatters for this buffer                                         |
+| `:checkhealth` | everything else                                                    |
 
-In the UI: add a connection string (`postgres://user:pass@host/db`), browse
-tables, run SQL in a scratch buffer with the keymap shown.
+## From VS Code
 
-## 23. AI (Claude Code)
-
-`coder/claudecode.nvim` speaks the same protocol as the VS Code extension: diffs
-preview in nvim, selections flow to Claude. No inline completion plugin.
-
-| Key                 | Action                   |
-| ------------------- | ------------------------ |
-| `Space ac`          | toggle Claude terminal   |
-| `Space af`          | focus Claude             |
-| `Space ar`          | resume session           |
-| `Space aC`          | continue session         |
-| `Space ab`          | add current buffer       |
-| `Space as` (visual) | send selection to Claude |
-| `Space aa`          | accept diff              |
-| `Space ad`          | deny diff                |
-
-Alternative: `claude` in a tmux pane (`prefix + a` popup) works without nvim.
-
-## 24. VS Code Habits Translation
-
-| VS Code                   | Neovim                           |
-| ------------------------- | -------------------------------- |
-| Ctrl-P (find file)        | `Space Space`                    |
-| Ctrl-Shift-F (search all) | `Space /`                        |
-| Ctrl-Tab (switch file)    | `Space ,` or `[b`/`]b`           |
-| Ctrl-S (save)             | `Ctrl-s`                         |
-| Ctrl-Z / Ctrl-Shift-Z     | `u` / `Ctrl-r`                   |
-| Ctrl-C / Ctrl-V           | `y` / `p` (system clipboard)     |
-| Ctrl-/ (comment)          | `gcc` (line), `gc` + motion      |
-| Ctrl-D (select next)      | `*` then `cgn` then `.`          |
-| Ctrl-. (quick fix)        | `Space ca`                       |
-| F2 (rename)               | `Space cr`                       |
-| F12 / Shift-F12           | `gd` / `gr`                      |
-| F5 (debug)                | `Space dc`                       |
-| F8 (next error)           | `]d`                             |
-| Ctrl-backtick (terminal)  | `Ctrl-\`                         |
-| Explorer sidebar          | `Space e`                        |
-| Extensions panel          | `:Lazy`                          |
-| Settings                  | edit lua files (sec. 21)         |
-| Multi-cursor              | `Ctrl-v` block, or `*`+`cgn`+`.` |
-| Source control panel      | `Space gg` (LazyGit)             |
-
-Multi-cursor (`cgn`): `/word` Enter, `cgn`, type the replacement, `Esc`, then `.`
-for the next match or `n` to skip. Macros: `qq` record, `q` stop, `@q` replay.
-
-## Quick Reference Card
-
-```text
-MOVEMENT            EDITING             FILES
-h j k l   arrows    i    insert         Space Space  find file
-w b e     words     a    append         Space /      grep files
-0 $       line      o/O  new line       Space ,      buffers
-gg G      file      dd   delete line    Space e      explorer
-Ctrl-d/u  scroll    yy   yank line      Space fr     recent
-s         flash     p    paste          Space 1-9    harpoon
-{ }       para      ciw  change word    gd           go to def
-%         bracket   u    undo           gr           references
-f{c}      find      .    repeat edit    K            hover docs
-
-CLIPBOARD           GIT                 TOOLS
-y    yank=copy      Space gg  lazygit   :Lazy       plugins
-p    paste          Space gd  diffview  :Mason      lsp/tools
-yy   copy line      ]h / [h   hunks     :LazyExtras extras
-"0p  paste yank     Space ghs stage     :checkhealth diagnose
-                    Space gB  blame     Ctrl-\      terminal
-
-SAVE/QUIT           SEARCH              AI / DEBUG
-Ctrl-s    save      /pattern  search    Space ac  claude
-:q        quit      Space /   grep all  Space db  breakpoint
-:wq       save+q    Space sr  replace   Space dc  start/cont
-Space Q   quit all  Space st  TODOs     Space tr  run test
-```
+| VS Code               | Neovim                           |
+| --------------------- | -------------------------------- |
+| Ctrl-P / Ctrl-Shift-F | `Space Space` / `Space /`        |
+| Ctrl-Tab              | `Space ,` or `[b` `]b`           |
+| Ctrl-/                | `gcc`                            |
+| Ctrl-D, multi-cursor  | `*` `cgn` `.`, or `Ctrl-v` block |
+| Ctrl-. / F2           | `Space ca` / `Space cr`          |
+| F12 / Shift-F12       | `gd` / `gr`                      |
+| F5 / F8               | `Space dc` / `]d`                |
+| Ctrl-backtick         | `Ctrl-\`                         |
+| Source control        | `Space gg`                       |
+| Extensions / settings | `:Lazy` / [Config](#config)      |
