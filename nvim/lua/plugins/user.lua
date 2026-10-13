@@ -173,7 +173,7 @@ return {
     dependencies = { "nvim-tree/nvim-web-devicons" },
     cmd = "Oil",
     opts = {
-      default_file_explorer = false, -- don't replace neo-tree
+      default_file_explorer = false, -- the snacks explorer stays the default
       view_options = { show_hidden = true },
       float = {
         padding = 2,
