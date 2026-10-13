@@ -3,6 +3,7 @@ glab = "latest"
 go = "1.26"
 node = "24"
 python = "3.14"
+uv = "latest"
 neovim = "latest"
 # Lint toolchain, pinned so `just lint` matches CI; Renovate bumps them
 just = "1.58.0"
