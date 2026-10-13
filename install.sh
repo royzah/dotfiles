@@ -3,6 +3,8 @@
 set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "$0")" && pwd)"
+# Right after bootstrap-user.sh, mise tools (jq) are installed but not yet on PATH
+PATH="$PATH:$HOME/.local/bin:$HOME/.local/share/mise/shims"
 
 # Never overwrite an earlier backup: a second run gets a timestamped name
 backup() {
