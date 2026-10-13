@@ -66,6 +66,11 @@ echo ""
 # Shell
 echo "[shell]"
 link zshrc ~/.zshrc
+# Ubuntu's /etc/zsh/zshrc runs an uncached compinit before oh-my-zsh runs its own
+if ! grep -qx 'skip_global_compinit=1' ~/.zshenv 2> /dev/null; then
+  echo 'skip_global_compinit=1' >> ~/.zshenv
+  echo "  appended: skip_global_compinit=1 to ~/.zshenv"
+fi
 link starship/starship.toml ~/.config/starship.toml
 
 # Git
