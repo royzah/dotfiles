@@ -362,17 +362,24 @@ claude mcp add --scope user --transport http github https://api.githubcopilot.co
 ### Instructions for other AI assistants
 
 `AGENTS.md` is the single source of instructions, in this repo and in
-`templates/`. The other files only point at it, so the rules never drift:
+`templates/`. Its core is the four principles from
+[andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills):
+think before coding, simplicity first, surgical changes, goal-driven execution.
+Every tool loads it without a copy, so the rules never drift:
 
-| Assistant      | Reads                                        |
-| -------------- | -------------------------------------------- |
-| Codex, Copilot | `AGENTS.md` natively                         |
-| Claude Code    | `CLAUDE.md`, which imports `@AGENTS.md`      |
-| Gemini CLI     | `GEMINI.md`, a pointer to `AGENTS.md`        |
-| Copilot (IDE)  | `.github/copilot-instructions.md`, a pointer |
+| Assistant                   | Loads `AGENTS.md` via                                       |
+| --------------------------- | ----------------------------------------------------------- |
+| Codex                       | native                                                      |
+| Claude Code                 | `CLAUDE.md` with `@AGENTS.md`                               |
+| Gemini CLI                  | `GEMINI.md` with `@./AGENTS.md`                             |
+| Copilot (VS Code, CLI, web) | native; `.github/copilot-instructions.md` adds review notes |
 
-`ccinit` copies all of them into a new project (existing files are preserved);
-then fill in **Project Context** in `AGENTS.md`.
+Link-only pointers do not load anything: Claude and Gemini need the `@` import.
+Copilot Chat in JetBrains and Visual Studio ignores `AGENTS.md`.
+
+`ccinit` copies `AGENTS.md` into a new project, plus `CLAUDE.md` (or the
+Copilot file on a work machine) and `GEMINI.md` when `gemini` is installed.
+Existing files are kept. Then fill in **Project Context** in `AGENTS.md`.
 
 Filename conventions: [Codex](https://developers.openai.com/codex/guides/agents-md/),
 [Gemini CLI](https://geminicli.com/docs/cli/gemini-md/),

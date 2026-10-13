@@ -22,6 +22,17 @@ Kubernetes, embedded Linux (ARM SoCs, serial debugging).
 - Keep shell scripts `set -euo pipefail`, shellcheck-clean
 - Format Nix with alejandra, Lua with stylua, shell with shfmt
 
+## Coding discipline
+
+- Think first: state assumptions, surface other readings and simpler options,
+  ask when confused instead of guessing
+- Simplicity: minimum code for the ask, nothing speculative, no handling for
+  impossible cases
+- Surgical: every changed line traces to the request; clean up only what my
+  change orphaned
+- Goal-driven: turn the task into a checkable goal and loop until it passes.
+  Trivial tasks: use judgment
+
 ## Code comments
 
 - Before committing, read the diff and check the comments first

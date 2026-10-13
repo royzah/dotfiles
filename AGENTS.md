@@ -7,7 +7,7 @@
 ## Self-Maintenance
 
 - Edit this file, never `CLAUDE.md`, `GEMINI.md` or
-  `.github/copilot-instructions.md`; those only point here.
+  `.github/copilot-instructions.md`; those import it or hold tool-specific notes.
 - Populate **Project Context** when you discover structure, conventions, or tooling.
 - Append to **Decision Log** when a significant decision is made.
 - Append to **Learned Conventions** when a pattern is established.
@@ -58,10 +58,16 @@
 
 ## Working Discipline
 
-- State assumptions; ask once, upfront, when a requirement is unclear.
-- Surgical changes only - every changed line traces to the request. Mention
-  adjacent issues, don't fix them unasked.
-- Simplicity over cleverness. No speculative abstraction.
+- Bias: caution over speed; for trivial tasks, use judgment.
+- **Think first:** state assumptions; ask once, upfront, when a requirement is
+  unclear. Several interpretations? Present them. Simpler way? Push back.
+- **Surgical changes only** - every changed line traces to the request. Mention
+  adjacent issues, don't fix them unasked. Remove what your change orphaned;
+  leave pre-existing dead code.
+- **Simplicity over cleverness.** No speculative abstraction, no handling for
+  impossible cases. If 200 lines could be 50, rewrite it.
+- **Goal-driven:** turn the task into a checkable goal; multi-step work gets a
+  short plan with a check per step (`step -- verify: x`).
 - **Done means verified:** run the affected script or `just lint`, read the diff.
   "Should work" is not done. When a fix is runtime state (dconf, systemd,
   resurrect saves), also fix the repo script so it persists across a reinstall.
@@ -106,6 +112,12 @@
   are no longer symlinked; `~/.gitconfig` is a local stub that includes the
   repo file and Claude settings are jq-merged -- a `glab` credential block
   written through the symlink leaked the employer hostname into the public repo.
+- 2026-10-13: `CLAUDE.md`/`GEMINI.md` load `AGENTS.md` with an `@` import, and
+  the Copilot file holds review notes -- link-only pointers loaded nothing in
+  Claude or Gemini; Codex and Copilot read `AGENTS.md` natively.
+- 2026-10-13: working discipline follows the four Karpathy principles
+  (multica-ai/andrej-karpathy-skills) -- they target the common LLM failures:
+  silent assumptions, overengineering, drive-by edits, unverified "done".
 
 ## Learned Conventions
 
