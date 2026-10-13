@@ -237,4 +237,4 @@ echo "=== Next ==="
 echo "Fresh machine:   ./bootstrap.sh first (installs all tools), then rerun this"
 if is_wsl; then echo "WSL:             skip setup-system.sh, Windows owns the desktop"; fi
 echo "System setup:    ./setup-system.sh  (font, Ghostty, GNOME keybindings, systemd)"
-echo "Full guide:      README.md Fresh Install"
+echo "Full guide:      LINUX_GUIDE.md (Windows: WINDOWS_GUIDE.md)"

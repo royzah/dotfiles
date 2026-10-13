@@ -71,8 +71,9 @@
 - **Done means verified:** run the affected script or `just lint`, read the diff.
   "Should work" is not done. When a fix is runtime state (dconf, systemd,
   resurrect saves), also fix the repo script so it persists across a reinstall.
-- Keep docs lean. The README is deliberately terse; detailed guides live in
-  their own files (`NVIM_GUIDE.md`, `TMUX_GUIDE.md`).
+- Keep docs lean: tables and commands over prose, no fact stated twice. The
+  README is a hub; detail lives in `LINUX_GUIDE.md`, `WINDOWS_GUIDE.md`,
+  `NVIM_GUIDE.md`, `TMUX_GUIDE.md`.
 
 ## Gotchas
 
