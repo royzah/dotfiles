@@ -3,6 +3,9 @@ alias ai='ai.sh'
 alias aic='ai.sh --continue'
 alias ccr='claude remote-control --name "dev-session"'
 
+# agy -p has no workspace (so no AGENTS.md) unless one is added
+agy() { command agy --add-dir "$(git rev-parse --show-toplevel 2>/dev/null || print -r -- "$PWD")" "$@" }
+
 typeset -g _dotfiles_templates="${${(%):-%x}:A:h:h}/templates"
 
 # Copy AGENTS.md plus the file each agent in use here needs (Codex reads
