@@ -79,10 +79,8 @@ brew_missing() {
   ((${#out[@]} == 0)) || "$BREW" install "${out[@]}"
 }
 brew_missing git-delta eza zoxide fzf fd bat ripgrep lazygit direnv btop gh starship atuin restic bitwarden-cli tio
-brew_missing lazydocker k9s kubectx stern yq awscli tldr \
-  act kustomize grpcurl tokei hyperfine \
-  lnav httpie dive nmap dust jless luacheck yt-dlp speedtest-cli \
-  cmatrix pipes-sh cbonsai fastfetch cava ||
+brew_missing lazydocker k9s kubectx yq awscli kustomize \
+  lnav nmap luacheck yt-dlp speedtest-cli cmatrix pipes-sh ||
   echo "  some optional tools failed - install manually or rerun"
 
 echo "[runtimes]"
