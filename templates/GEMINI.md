@@ -1,4 +1,8 @@
 # GEMINI.md
 
-All project instructions live in [AGENTS.md](AGENTS.md). Read it at session
-start and follow it unconditionally.
+@./AGENTS.md
+
+## Gemini CLI
+
+- Shared rules come from `AGENTS.md` (imported above); edit that, not this file.
+- `/memory show` confirms the import loaded.

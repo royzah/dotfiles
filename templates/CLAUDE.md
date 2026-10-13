@@ -4,4 +4,6 @@
 
 ## Claude Code
 
-- `AGENTS.md` above is the single source of truth; edit it, not this file.
+- Shared rules come from `AGENTS.md` (imported above); edit that, not this file.
+- Personal, uncommitted notes go in `CLAUDE.local.md`.
+- Delegate broad searches to subagents so the main context stays small.
