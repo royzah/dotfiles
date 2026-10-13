@@ -15,6 +15,7 @@ backup() {
 link() {
   local src="$DOTFILES/$1"
   local dst="$2"
+  mkdir -p "$(dirname "$dst")"
   if [[ -e "$dst" && ! -L "$dst" ]]; then
     backup "$dst"
   fi
