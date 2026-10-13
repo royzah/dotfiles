@@ -28,7 +28,9 @@ echo "detected: $(gpu_vendors | paste -sd+ -)$(is_hybrid_graphics && echo " (hyb
 
 # 32-bit userspace is what Steam and older Proton titles need
 enable_i386() {
-  dpkg --print-foreign-architectures | grep -qx i386 && return 0
+  local archs
+  archs=$(dpkg --print-foreign-architectures)
+  grep -qx i386 <<< "$archs" && return 0
   echo "  enabling i386 architecture"
   sudo dpkg --add-architecture i386
   sudo apt-get update -q

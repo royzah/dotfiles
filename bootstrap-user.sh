@@ -44,7 +44,7 @@ echo "[zsh]"
 if have zsh || [[ -x "$HOME/.local/bin/zsh" ]]; then
   echo "  have: zsh"
 else
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/romkatv/zsh-bin/master/install)" -- -d "$HOME/.local" -e no -q
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/romkatv/zsh-bin/v6.1.1/install)" -- -d "$HOME/.local" -e no -q
   echo "  installed: static zsh in ~/.local"
 fi
 if [[ ${SHELL##*/} != zsh ]] && ! grep -qF '# dotfiles: enter zsh' "$HOME/.bashrc" 2> /dev/null; then

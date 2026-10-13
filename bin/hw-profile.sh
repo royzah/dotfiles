@@ -28,11 +28,17 @@ is_work() { [[ -f "$HOME/.config/dotfiles/work" ]]; }
 # GPU. A machine can have several (laptops usually pair an iGPU with a dGPU),
 # so these are independent predicates rather than one exclusive vendor.
 # --------------------------------------------------------------------------
-_gpu_lines() { lspci 2> /dev/null | grep -iE 'vga compatible controller|3d controller|display controller'; }
+# PCI vendor ids of display-class (03xx) devices; names would match "ati" in "Corporation"
+_gpu_vendor_ids() { lspci -n 2> /dev/null | awk '$2 ~ /^03/ { print substr($3, 1, 4) }'; }
+_has_gpu_vendor() {
+  local ids
+  ids=$(_gpu_vendor_ids)
+  grep -qx "$1" <<< "$ids"
+}
 
-has_nvidia() { _gpu_lines | grep -qi nvidia; }
-has_amd_gpu() { _gpu_lines | grep -qiE 'amd|ati|radeon'; }
-has_intel_gpu() { _gpu_lines | grep -qi intel; }
+has_nvidia() { _has_gpu_vendor 10de; }
+has_amd_gpu() { _has_gpu_vendor 1002; }
+has_intel_gpu() { _has_gpu_vendor 8086; }
 
 # Every GPU vendor present, one per line: nvidia, amd, intel
 gpu_vendors() {
@@ -93,6 +99,8 @@ has_epp() { [[ -e /sys/devices/system/cpu/cpu0/cpufreq/energy_performance_prefer
 is_wayland() { [[ ${XDG_SESSION_TYPE:-} == wayland ]]; }
 is_x11() { [[ ${XDG_SESSION_TYPE:-} == x11 ]]; }
 has_gui() { is_wayland || is_x11; }
+# A desktop install even when reached over SSH, where XDG_SESSION_TYPE is unset
+has_desktop() { ! is_wsl && { has_gui || [[ $(systemctl get-default 2> /dev/null) == graphical.target ]]; }; }
 
 # Serial hardware only matters where it is actually plugged in
 has_serial() { compgen -G '/dev/ttyUSB*' > /dev/null 2>&1 || compgen -G '/dev/ttyACM*' > /dev/null 2>&1; }

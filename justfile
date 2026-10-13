@@ -3,65 +3,43 @@ set shell := ["bash", "-cu"]
 default:
     @just --list
 
+# Tracked plus new (not ignored) files, so a file is linted before its first commit
+files := "git ls-files --cached --others --exclude-standard"
+
 lint:
-    shellcheck -x bootstrap.sh bootstrap-user.sh install.sh setup-system.sh bin/*.sh claude/statusline.sh claude/hooks/*.sh
-    shfmt -d bootstrap.sh bootstrap-user.sh install.sh setup-system.sh bin/ claude/
-    zsh -n zshrc
+    shellcheck -x $({{files}} '*.sh')
+    shfmt -d $({{files}} '*.sh')
+    for f in zshrc $({{files}} 'zsh/*.zsh'); do zsh -n "$f"; done
     luacheck nvim/ --quiet
-    stylua --check nvim/
-    markdownlint README.md NVIM_GUIDE.md TMUX_GUIDE.md WINDOWS_GUIDE.md CLAUDE.md AGENTS.md GEMINI.md .github/copilot-instructions.md templates/CLAUDE.md templates/AGENTS.md templates/GEMINI.md templates/.github/copilot-instructions.md claude/CLAUDE.md
-    jq empty claude/settings.json nvim/lazyvim.json
+    stylua --config-path nvim/stylua.toml --check nvim/
+    markdownlint $({{files}} '*.md')
+    jq empty claude/settings.json nvim/lazyvim.json renovate.json
 
 fmt:
-    shfmt -w bootstrap.sh bootstrap-user.sh install.sh setup-system.sh bin/ claude/
-    stylua nvim/
+    shfmt -w $({{files}} '*.sh')
+    stylua --config-path nvim/stylua.toml nvim/
 
-# Update everything - system, CLI tools, runtimes, editor, AI. Run monthly.
+# Update everything (system, CLI tools, runtimes, editor, AI); skips what is missing, so no sudo needed. Run monthly.
 update:
-    sudo apt update && sudo apt upgrade -y
-    brew update && brew upgrade
-    mise upgrade
-    rustup update
-    claude update
-    nvim --headless "+Lazy! sync" +qa
-    -~/.tmux/plugins/tpm/bin/update_plugins all
+    #!/usr/bin/env bash
+    set -euo pipefail
+    source bin/hw-profile.sh
+    have() { command -v "$1" > /dev/null 2>&1; }
+    if have apt-get && [[ " $(id -nG) " == *" sudo "* ]]; then sudo apt-get update && sudo apt-get upgrade -y; fi
+    if have brew; then brew update && brew upgrade; fi
+    if have mise; then mise upgrade; fi
+    if have rustup; then rustup update; fi
+    if have claude && ! is_work; then claude update; fi
+    if have nvim; then nvim --headless "+Lazy! sync" +qa; fi
+    if [[ -x ~/.tmux/plugins/tpm/bin/update_plugins ]]; then ~/.tmux/plugins/tpm/bin/update_plugins all || true; fi
     ./bin/migrate.sh
-    nix-collect-garbage -d
+    if have nix-collect-garbage; then nix-collect-garbage -d; fi
 
 install:
     ./install.sh
 
 system:
     ./setup-system.sh
-
-nvim:
-    mkdir -p ~/.config/nvim/lua/config ~/.config/nvim/lua/plugins
-    ln -sfn "$(pwd)/nvim/init.lua" ~/.config/nvim/init.lua
-    ln -sfn "$(pwd)/nvim/lazyvim.json" ~/.config/nvim/lazyvim.json
-    ln -sfn "$(pwd)/nvim/stylua.toml" ~/.config/nvim/stylua.toml
-    ln -sfn "$(pwd)/nvim/lua/config/lazy.lua" ~/.config/nvim/lua/config/lazy.lua
-    ln -sfn "$(pwd)/nvim/lua/config/options.lua" ~/.config/nvim/lua/config/options.lua
-    ln -sfn "$(pwd)/nvim/lua/config/keymaps.lua" ~/.config/nvim/lua/config/keymaps.lua
-    ln -sfn "$(pwd)/nvim/lua/config/autocmds.lua" ~/.config/nvim/lua/config/autocmds.lua
-    ln -sfn "$(pwd)/nvim/lua/plugins/user.lua" ~/.config/nvim/lua/plugins/user.lua
-    ln -sfn "$(pwd)/nvim/lua/plugins/lsp.lua" ~/.config/nvim/lua/plugins/lsp.lua
-    ln -sfn "$(pwd)/nvim/lua/plugins/dap-config.lua" ~/.config/nvim/lua/plugins/dap-config.lua
-    ln -sfn "$(pwd)/nvim/lua/plugins/snippets.lua" ~/.config/nvim/lua/plugins/snippets.lua
-    ln -sfn "$(pwd)/nvim/lua/plugins/claudecode.lua" ~/.config/nvim/lua/plugins/claudecode.lua
-
-git:
-    ln -sfn "$(pwd)/gitconfig" ~/.gitconfig
-    ln -sfn "$(pwd)/gitignore_global" ~/.gitignore_global
-
-ssh:
-    mkdir -p ~/.ssh/sockets
-    chmod 700 ~/.ssh
-    ln -sfn "$(pwd)/ssh_config" ~/.ssh/config
-    chmod 600 ~/.ssh/config
-
-zsh:
-    ln -sfn "$(pwd)/zshrc" ~/.zshrc
-    ln -sfn "$(pwd)/starship/starship.toml" ~/.config/starship.toml
 
 clean:
     ./bin/reclaim.sh

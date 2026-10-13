@@ -147,7 +147,9 @@ cmd_pack() {
     fi
 
     # Extra remotes are part of how the repo works; restore re-adds them.
-    git -C "$d" remote 2> /dev/null | grep -qv '^origin$' && {
+    local remotes
+    remotes=$(git -C "$d" remote 2> /dev/null) || remotes=""
+    grep -qv '^origin$' <<< "$remotes" && {
       git -C "$d" remote -v 2> /dev/null | awk '$3 == "(fetch)" && $1 != "origin" {print $1 "\t" $2}' \
         > "$dest/loose/$s.remotes.tsv"
     }

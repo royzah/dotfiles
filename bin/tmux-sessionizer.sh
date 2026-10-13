@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# tmux-sessionizer — quickly switch to a project in a tmux session
+# tmux-sessionizer - quickly switch to a project in a tmux session
 # Uses zoxide for frecency-ranked directories + fd for discovery
 set -euo pipefail
 

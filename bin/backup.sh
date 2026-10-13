@@ -72,7 +72,9 @@ case "${1:-run}" in
     paths=()
     for p in "${INCLUDE[@]}"; do [[ -e $p ]] && paths+=("$p"); done
     restic backup "${paths[@]}" "${EXCLUDE[@]}" --tag auto
-    restic forget --keep-daily 7 --keep-weekly 4 --keep-monthly 12 --prune
+    restic forget --keep-daily 7 --keep-weekly 4 --keep-monthly 12
+    # Pruning rewrites packs, which is slow and costs B2 transactions: weekly is plenty
+    if [[ $(date +%u) == 7 ]]; then restic prune --max-unused 10%; fi
     ;;
   snapshots) restic snapshots ;;
   check) restic check ;;

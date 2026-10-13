@@ -4,15 +4,56 @@ set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "$0")" && pwd)"
 
+# Never overwrite an earlier backup: a second run gets a timestamped name
+backup() {
+  local dst="$1" bak="$1.bak"
+  [[ -e $bak || -L $bak ]] && bak="$1.bak.$(date +%Y%m%d-%H%M%S)"
+  echo "  backup: $dst -> $bak"
+  mv "$dst" "$bak"
+}
+
 link() {
   local src="$DOTFILES/$1"
   local dst="$2"
   if [[ -e "$dst" && ! -L "$dst" ]]; then
-    echo "  backup: $dst -> ${dst}.bak"
-    mv "$dst" "${dst}.bak"
+    backup "$dst"
   fi
   ln -sfn "$src" "$dst"
   echo "  linked: $dst -> $src"
+}
+
+# A real file that includes the repo config, not a symlink: `gh/glab auth
+# setup-git` write credential blocks through a symlink into the public repo
+gitconfig_stub() {
+  local dst="$HOME/.gitconfig" inc="$DOTFILES/gitconfig" paths=""
+  if [[ -f $dst && ! -L $dst ]]; then
+    paths=$(git config -f "$dst" --get-all include.path 2> /dev/null) || paths=""
+    if grep -qxF "$inc" <<< "$paths"; then
+      echo "  ok: $dst includes $inc"
+      return 0
+    fi
+    backup "$dst"
+  fi
+  rm -f "$dst"
+  printf '# Machine-local: gh/glab write here. Shared config is included below.\n[include]\n\tpath = %s\n' "$inc" > "$dst"
+  echo "  wrote: $dst (includes $inc)"
+}
+
+# Merged, not linked: Claude Code writes runtime keys into its settings file.
+# Repo keys win; local-only keys (account ids, toggles) survive.
+claude_settings() {
+  local dst="$HOME/.claude/settings.json" base="$DOTFILES/claude/settings.json" cur='{}' tmp
+  if ! command -v jq > /dev/null; then
+    echo "  skipped: $dst (jq not installed)"
+    return 0
+  fi
+  if [[ -e $dst ]]; then
+    if jq empty "$dst" 2> /dev/null; then cur=$(< "$dst"); else backup "$dst"; fi
+  fi
+  tmp=$(mktemp "$dst.XXXXXX")
+  jq -s '.[0] * .[1]' <(printf '%s\n' "$cur") "$base" > "$tmp"
+  mv "$tmp" "$dst"
+  echo "  merged: $dst <- $base"
 }
 
 # shellcheck source=bin/hw-profile.sh
@@ -29,7 +70,12 @@ link starship/starship.toml ~/.config/starship.toml
 
 # Git
 echo "[git]"
-link gitconfig ~/.gitconfig
+gitconfig_stub
+# Lets `git log --show-signature` verify our own SSH-signed commits
+if [[ -f ~/.ssh/id_ed25519.pub && ! -f ~/.ssh/allowed_signers ]]; then
+  printf '%s namespaces="git" %s\n' "$(git config -f "$DOTFILES/gitconfig" user.email)" "$(< ~/.ssh/id_ed25519.pub)" > ~/.ssh/allowed_signers
+  echo "  wrote: ~/.ssh/allowed_signers"
+fi
 link gitignore_global ~/.gitignore_global
 
 # Tmux
@@ -115,20 +161,27 @@ else
   echo "[claude]"
   mkdir -p ~/.claude
   link claude/CLAUDE.md ~/.claude/CLAUDE.md
-  link claude/settings.json ~/.claude/settings.json
+  claude_settings
   link claude/statusline.sh ~/.claude/statusline.sh
   link claude/hooks ~/.claude/hooks
   chmod +x "$DOTFILES"/claude/statusline.sh "$DOTFILES"/claude/hooks/*.sh
 fi
 
-# Claude Remote Control (systemd user service)
+# Systemd user services (tmux, backup, and Claude Remote Control off work machines)
 echo "[systemd]"
 # Copied, not symlinked: systemd 249 (Ubuntu 22.04) breaks enable on linked units
-mkdir -p ~/.config/systemd/user
-rm -f ~/.config/systemd/user/{claude-remote,tmux,backup}.service ~/.config/systemd/user/backup.timer
-cp -f "$DOTFILES"/systemd/claude-remote.service "$DOTFILES"/systemd/tmux.service \
-  "$DOTFILES"/systemd/backup.service "$DOTFILES"/systemd/backup.timer ~/.config/systemd/user/
-echo "  copied: claude-remote, tmux, backup service+timer"
+UNIT_DIR=~/.config/systemd/user
+mkdir -p "$UNIT_DIR"
+rm -f "$UNIT_DIR"/{claude-remote,tmux,backup}.service "$UNIT_DIR"/backup.timer
+cp -f "$DOTFILES"/systemd/tmux.service "$DOTFILES"/systemd/backup.service \
+  "$DOTFILES"/systemd/backup.timer "$UNIT_DIR"/
+if is_work; then
+  echo "  copied: tmux, backup service+timer (claude-remote skipped on a work machine)"
+else
+  # systemd cannot resolve the repo path itself, so it is filled in here
+  sed "s|@DOTFILES@|$DOTFILES|g" "$DOTFILES"/systemd/claude-remote.service > "$UNIT_DIR"/claude-remote.service
+  echo "  copied: claude-remote, tmux, backup service+timer"
+fi
 systemctl --user daemon-reload 2> /dev/null || true
 
 # VS Code (on WSL, VS Code runs on Windows via the WSL extension)

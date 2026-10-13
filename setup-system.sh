@@ -3,9 +3,9 @@
 # Run AFTER install.sh and package installation
 set -euo pipefail
 
-SCRIPT_DIR_EARLY="$(cd "$(dirname "$0")" && pwd)"
+DOTFILES="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck source=bin/hw-profile.sh
-source "$SCRIPT_DIR_EARLY/bin/hw-profile.sh"
+source "$DOTFILES/bin/hw-profile.sh"
 
 if is_wsl; then
   cat << 'MSG'
@@ -24,7 +24,8 @@ if ! has_gui || ! command -v gsettings > /dev/null 2>&1; then
   exit 0
 fi
 
-if ! gsettings list-schemas 2> /dev/null | grep -q '^org.gnome.desktop.wm.keybindings$'; then
+schemas=$(gsettings list-schemas 2> /dev/null) || schemas=""
+if ! grep -qx 'org.gnome.desktop.wm.keybindings' <<< "$schemas"; then
   echo "GNOME schemas not found (KDE, XFCE or similar): skipping GNOME settings."
   exit 0
 fi
@@ -68,9 +69,16 @@ for cand in /usr/bin/ghostty /snap/bin/ghostty; do
 done
 
 if [[ -z "$real_ghostty" ]]; then
-  echo "  installing ghostty via snap..."
-  sudo snap install ghostty --classic
-  real_ghostty=/snap/bin/ghostty
+  # Prefer a native package where the release ships one; snap is the fallback
+  if apt_available ghostty; then
+    echo "  installing ghostty via apt..."
+    sudo apt-get install -yq ghostty
+    real_ghostty=/usr/bin/ghostty
+  else
+    echo "  installing ghostty via snap..."
+    sudo snap install ghostty --classic
+    real_ghostty=/snap/bin/ghostty
+  fi
 else
   echo "  ghostty: found at $real_ghostty"
 fi
@@ -89,7 +97,8 @@ WRAPPER
 fi
 
 # Register as default terminal (priority 60 beats gnome-terminal's 40)
-if update-alternatives --query x-terminal-emulator 2> /dev/null | grep -q "/usr/local/bin/ghostty"; then
+term_alts=$(update-alternatives --query x-terminal-emulator 2> /dev/null) || term_alts=""
+if grep -qF /usr/local/bin/ghostty <<< "$term_alts"; then
   echo "  default terminal: already set"
 else
   echo "  registering as default terminal..."
@@ -194,14 +203,13 @@ echo "  $i custom keybindings set (Super+K lists them all)"
 # 4) GNOME extensions - tiling, workspace pills, shell tuning
 # --------------------------------------------------------------------------
 echo "[gnome extensions]"
-"$SCRIPT_DIR_EARLY/bin/gnome-extensions-setup.sh"
+"$DOTFILES/bin/gnome-extensions-setup.sh"
 
 # --------------------------------------------------------------------------
 # 5) Web apps - chrome --app windows with launchers
 # --------------------------------------------------------------------------
 echo "[web apps]"
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 WEBAPPS=(
   "WhatsApp|https://web.whatsapp.com"
   "YouTube|https://youtube.com"
@@ -215,7 +223,7 @@ for entry in "${WEBAPPS[@]}"; do
   if [[ -f "$HOME/.local/share/applications/webapp-$wa_name.desktop" ]]; then
     echo "  $wa_name: already installed"
   else
-    "$SCRIPT_DIR/bin/webapp-install.sh" "$wa_name" "$wa_url"
+    "$DOTFILES/bin/webapp-install.sh" "$wa_name" "$wa_url"
   fi
 done
 
@@ -230,7 +238,7 @@ else
   # Topics land in their own subdirectory; bg.sh cycles all of them
   for spec in "jdm|30" "car night city|20|jdm-night" "retrowave|15" "japan street night|20|japan" "minimal dark|15|minimal"; do
     IFS='|' read -r wq wn wt <<< "$spec"
-    "$SCRIPT_DIR_EARLY/bin/wallfetch.sh" "$wq" "$wn" "${wt:-}" || true
+    "$DOTFILES/bin/wallfetch.sh" "$wq" "$wn" "${wt:-}" || true
   done
 fi
 
@@ -264,15 +272,15 @@ fi
 
 # Force-install the extensions listed in chrome/extensions.txt. Same managed
 # policy mechanism as the theme, so a fresh machine gets the browser too.
-if command -v google-chrome > /dev/null 2>&1 && [[ -f "$SCRIPT_DIR_EARLY/chrome/extensions.txt" ]]; then
-  ext_json=$(grep -oE '^[a-p]{32}' "$SCRIPT_DIR_EARLY/chrome/extensions.txt" |
+if command -v google-chrome > /dev/null 2>&1 && [[ -f "$DOTFILES/chrome/extensions.txt" ]]; then
+  ext_json=$(grep -oE '^[a-p]{32}' "$DOTFILES/chrome/extensions.txt" |
     sed 's|.*|"&;https://clients2.google.com/service/update2/crx"|' | paste -sd, -)
   if [[ -n $ext_json ]]; then
     if sudo -n true 2> /dev/null || [[ -t 0 ]]; then
       printf '{"ExtensionInstallForcelist":[%s]}\n' "$ext_json" |
         sudo tee /etc/opt/chrome/policies/managed/extensions.json > /dev/null
       chrome_refresh_policy
-      echo "  $(grep -c '^[a-p]\{32\}' "$SCRIPT_DIR_EARLY/chrome/extensions.txt") extensions force-installed"
+      echo "  $(grep -c '^[a-p]\{32\}' "$DOTFILES/chrome/extensions.txt") extensions force-installed"
     else
       echo "  extensions: needs sudo, rerun from a terminal"
     fi
@@ -346,7 +354,29 @@ echo "  CapsLock = Compose (see XCompose: caps m s -> emoji, caps space e -> ema
 # --------------------------------------------------------------------------
 echo "[systemd]"
 systemctl --user daemon-reload
-echo "  daemon-reload done"
+enable_unit() {
+  if [[ ! -f "$HOME/.config/systemd/user/$1" ]]; then
+    echo "  $1: not installed (run ./install.sh)"
+  elif systemctl --user enable --now "$1" > /dev/null 2>&1; then
+    echo "  $1: enabled"
+  else
+    echo "  $1: failed to enable (systemctl --user status $1)"
+  fi
+}
+enable_unit tmux.service
+# Units that would fail on every run until their one-time setup is done
+if [[ -f "$HOME/.secrets.env" ]] && grep -q RESTIC_REPOSITORY "$HOME/.secrets.env"; then
+  enable_unit backup.timer
+else
+  echo "  backup.timer: skipped until RESTIC_REPOSITORY is in ~/.secrets.env (bin/backup.sh)"
+fi
+if is_work; then
+  echo "  claude-remote.service: skipped on a work machine"
+elif jq -e --arg p "$DOTFILES" '.projects[$p].hasTrustDialogAccepted == true' "$HOME/.claude.json" > /dev/null 2>&1; then
+  enable_unit claude-remote.service
+else
+  echo "  claude-remote.service: skipped until claude is logged in and $DOTFILES is trusted"
+fi
 
 echo ""
 echo "Done!"

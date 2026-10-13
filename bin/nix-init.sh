@@ -2,7 +2,7 @@
 # Scaffold a project with flake.nix + .envrc + optional compose.yaml
 set -euo pipefail
 
-DOTFILES="$(cd "$(dirname "$0")/.." && pwd)"
+DOTFILES="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
 TEMPLATES="$DOTFILES/templates"
 
 dir="${1:-.}"
@@ -23,6 +23,6 @@ fi
 
 echo ""
 echo "Next steps:"
-echo "  1. Edit flake.nix — uncomment the packages you need"
+echo "  1. Edit flake.nix - uncomment the packages you need"
 echo "  2. direnv allow"
 echo "  3. Optionally copy compose.yaml: cp $TEMPLATES/compose.yaml $dir/"

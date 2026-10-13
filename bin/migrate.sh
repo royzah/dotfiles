@@ -2,7 +2,7 @@
 # migrate.sh [--pending] - run each migrations/*.sh exactly once per machine
 set -euo pipefail
 
-DOTFILES="$(cd "$(dirname "$0")/.." && pwd)"
+DOTFILES="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
 STATE="$HOME/.local/state/dotfiles/migrations"
 mkdir -p "$STATE"
 

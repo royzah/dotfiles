@@ -50,13 +50,23 @@ done
 
 # Write enabled-extensions directly: `gnome-extensions enable` is a no-op for
 # extensions the running shell has not loaded yet (they appear after a reload).
-enabled=""
+# Merged into the current list so extensions enabled by hand stay enabled.
+installed=()
 for uuid in "${EXTENSIONS[@]}"; do
   [[ -d "$EXT_DIR/$uuid" ]] || continue
-  enabled="$enabled'$uuid', "
+  installed+=("$uuid")
   gnome-extensions enable "$uuid" 2> /dev/null || true
 done
-[[ -n $enabled ]] && gsettings set org.gnome.shell enabled-extensions "[${enabled%, }]"
+if ((${#installed[@]})); then
+  current=$(gsettings get org.gnome.shell enabled-extensions)
+  merged=$(python3 -c '
+import ast, sys
+cur = sys.argv[1].removeprefix("@as ")
+have = ast.literal_eval(cur)
+print(str(have + [u for u in sys.argv[2:] if u not in have]))
+' "$current" "${installed[@]}")
+  gsettings set org.gnome.shell enabled-extensions "$merged"
+fi
 
 # Set extension settings against their own schemas (no sudo, no /usr pollution)
 ext_set() {

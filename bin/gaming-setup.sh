@@ -16,7 +16,8 @@ echo "=== gaming setup ==="
 echo "[apt]"
 # steam-installer lives in multiverse, which a fresh install may not enable
 sudo add-apt-repository -y multiverse > /dev/null 2>&1 || true
-dpkg --print-foreign-architectures | grep -qx i386 || sudo dpkg --add-architecture i386
+foreign_archs=$(dpkg --print-foreign-architectures)
+grep -qx i386 <<< "$foreign_archs" || sudo dpkg --add-architecture i386
 sudo apt-get update -q
 # gamescope gives games their own compositor: fixes scaling and lets you cap
 # framerate independently of the desktop. It only exists on 24.04 and newer,

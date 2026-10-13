@@ -12,7 +12,7 @@ case "${1:-up}" in
       docker run -d --name $PG --restart unless-stopped \
         -p 127.0.0.1:5432:5432 \
         -e POSTGRES_USER=dev -e POSTGRES_PASSWORD=dev -e POSTGRES_DB=app \
-        -v dev-pgdata:/var/lib/postgresql/data postgres:18 > /dev/null
+        -v dev-pgdata:/var/lib/postgresql postgres:18 > /dev/null
     docker start $RD 2> /dev/null ||
       docker run -d --name $RD --restart unless-stopped \
         -p 127.0.0.1:6379:6379 redis:8 > /dev/null
