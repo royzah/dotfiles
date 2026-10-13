@@ -97,7 +97,7 @@ Clipboard is bridged: `pbcopy`/`pbpaste` map to `clip.exe` and PowerShell,
 | ------------------------------------------- | ----------------------------------- |
 | zsh, tmux, Neovim, git, lazygit, fzf, atuin | hotkeys, tiling, clipboard history  |
 | Nix, mise, direnv, Docker, Claude Code      | Ghostty, GNOME extensions, web apps |
-| minicom (with `usbipd`)                     | Solaar, gaming, `just tune`         |
+| tio (with `usbipd`)                         | Solaar, gaming, `just tune`         |
 
 ## Work laptop: thin client
 

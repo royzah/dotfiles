@@ -1,0 +1,10 @@
+# tio profiles: `tio usb0` opens /dev/ttyUSB0, `tio acm0` /dev/ttyACM0.
+# Default baud rate is 115200; flags override, e.g. `tio -b 9600 usb1`.
+
+[usb]
+pattern = ^usb([0-9]+)$
+device = /dev/ttyUSB%m1
+
+[acm]
+pattern = ^acm([0-9]+)$
+device = /dev/ttyACM%m1

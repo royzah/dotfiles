@@ -17,7 +17,7 @@ has_desktop || echo "(no desktop detected: skipping desktop packages and GUI app
 echo "[apt]"
 sudo apt-get update -q
 # pciutils backs GPU detection in hw-profile.sh
-APT_CORE=(zsh curl build-essential git unzip jq tmux inotify-tools pciutils minicom)
+APT_CORE=(zsh curl build-essential git unzip jq tmux inotify-tools pciutils)
 # wl-clipboard is the Wayland clipboard; xclip stays for X11 sessions.
 # grim+slurp replace flameshot for region capture under Wayland.
 APT_DESKTOP=(wl-clipboard xclip grim slurp fontconfig
@@ -30,7 +30,7 @@ if has_desktop; then
 else
   sudo apt-get install -yq "${APT_CORE[@]}"
 fi
-# Serial consoles (minicom, picocom) without sudo
+# Serial consoles (tio) without sudo
 user_groups=$(id -nG "$USER")
 [[ " $user_groups " == *" dialout "* ]] || sudo usermod -aG dialout "$USER"
 
@@ -78,7 +78,7 @@ brew_missing() {
   done
   ((${#out[@]} == 0)) || "$BREW" install "${out[@]}"
 }
-brew_missing git-delta eza zoxide fzf fd bat ripgrep lazygit direnv btop gh starship atuin restic bitwarden-cli
+brew_missing git-delta eza zoxide fzf fd bat ripgrep lazygit direnv btop gh starship atuin restic bitwarden-cli tio
 brew_missing lazydocker k9s kubectx stern yq awscli tldr \
   act kustomize grpcurl tokei hyperfine \
   lnav httpie dive nmap dust jless luacheck yt-dlp speedtest-cli \

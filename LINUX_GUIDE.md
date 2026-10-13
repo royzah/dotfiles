@@ -127,7 +127,8 @@ ccinit            # agent instructions (AGENTS.md + per-tool files), git-exclude
 
 `.envrc` is `use flake` (cached by nix-direnv) or `use mise` for quick scripts.
 
-Serial consoles: `minicom -D /dev/ttyUSB0 -b 115200` (the `dialout` group, no sudo).
+Serial consoles: `tio --list`, then `tio usb0` or `tio acm0` (profiles in `tio/config`).
+It reconnects when the board resets; `Ctrl-t ?` for the menu, `Ctrl-t q` quits.
 
 ## AI agents
 

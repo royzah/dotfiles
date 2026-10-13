@@ -226,11 +226,9 @@ else
   fi
 fi
 
-# Minicom (on WSL, serial ports arrive via usbipd-win)
-echo "[minicom]"
-link minirc.dfl ~/.minirc.dfl
-link minirc.pico ~/.minirc.pico
-link minirc.modem ~/.minirc.modem
+# Serial console (on WSL, serial ports arrive via usbipd-win)
+echo "[tio]"
+link tio/config ~/.config/tio/config
 
 echo ""
 echo "Done!"
