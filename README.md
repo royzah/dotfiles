@@ -372,6 +372,7 @@ Every tool loads it without a copy, so the rules never drift:
 | Codex                       | native                                                      |
 | Claude Code                 | `CLAUDE.md` with `@AGENTS.md`                               |
 | Gemini CLI                  | `GEMINI.md` with `@./AGENTS.md`                             |
+| Antigravity (`agy`)         | native (`GEMINI.md` also loaded, no duplicate)              |
 | Copilot (VS Code, CLI, web) | native; `.github/copilot-instructions.md` adds review notes |
 
 Link-only pointers do not load anything: Claude and Gemini need the `@` import.

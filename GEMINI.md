@@ -2,6 +2,8 @@
 
 @./AGENTS.md
 
-## Gemini CLI
+## Gemini CLI / Antigravity (agy)
 
 - Shared rules come from `AGENTS.md` (imported above); edit that, not this file.
+- `agy` reads `AGENTS.md` natively and leaves the `@` line unexpanded, so
+  rules load once in both tools.
