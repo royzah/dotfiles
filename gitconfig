@@ -6,12 +6,16 @@
 [gpg]
 	format = ssh
 
+[gpg "ssh"]
+	allowedSignersFile = ~/.ssh/allowed_signers
+
 # Work repos: email and signing key from an untracked file (ignored when absent)
 [includeIf "gitdir:~/Work/"]
 	path = ~/.gitconfig.work
 
 [commit]
 	gpgsign = true
+	verbose = true
 
 [init]
 	defaultBranch = main
@@ -22,6 +26,7 @@
 	pager = delta
 	autocrlf = input
 	excludesfile = ~/.gitignore_global
+	untrackedCache = true
 
 [pull]
 	rebase = true
@@ -32,12 +37,14 @@
 
 [fetch]
 	prune = true
+	pruneTags = true
 
 [merge]
 	conflictstyle = zdiff3
 
 [rerere]
 	enabled = true
+	autoUpdate = true
 
 [diff]
 	algorithm = histogram
@@ -45,6 +52,21 @@
 
 [rebase]
 	autoStash = true
+	autoSquash = true
+	updateRefs = true
+
+[branch]
+	autoSetupMerge = false
+	sort = -committerdate
+
+[tag]
+	sort = version:refname
+
+[column]
+	ui = auto
+
+[help]
+	autocorrect = prompt
 
 # --- Delta (beautiful diffs) ---
 [delta]
@@ -53,6 +75,7 @@
 	line-numbers = true
 	hyperlinks = true
 	syntax-theme = Catppuccin Mocha
+	features = decorations
 
 [delta "decorations"]
 	commit-decoration-style = blue ol
@@ -80,26 +103,19 @@
 	last = log -1 HEAD --stat
 	unstage = reset HEAD --
 	undo = reset --soft HEAD~1
-	stash-all = stash save --include-untracked
+	stash-all = stash push --include-untracked
 	branches = branch -a --sort=-committerdate
 	tags = tag -l
 	remotes = remote -v
 	cleanup = !git branch --merged | grep -v '\\*\\|main\\|master\\|develop' | xargs -n 1 git branch -d
 	wip = !git add -A && git commit -m 'wip [skip ci]'
-[credential "https://github.com"]
-	helper = 
-	helper = !/home/linuxbrew/.linuxbrew/bin/gh auth git-credential
-[credential "https://gist.github.com"]
-	helper = 
-	helper = !/home/linuxbrew/.linuxbrew/bin/gh auth git-credential
+
 [sendemail]
 	smtpEncryption = tls
 	smtpServer = smtp.gmail.com
 	smtpServerPort = 587
 	smtpUser = royzah@gmail.com
 	from = Royyan Zahir <royzah@gmail.com>
-[branch]
-	autoSetupMerge = false
 
 # Machine-local overrides, last so they win (a work machine sets its identity here)
 [include]

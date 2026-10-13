@@ -1,4 +1,4 @@
-# GDB config — better defaults for embedded + C/C++ debugging
+# GDB config: better defaults for embedded + C/C++ debugging
 
 # Pretty printing
 set print pretty on
@@ -28,8 +28,9 @@ set verbose off
 # Source-level debugging
 set listsize 20
 
-# Allow loading .gdbinit from project directories
-set auto-load safe-path /
+# Auto-load project .gdbinit from own source trees only, not anywhere on disk
+add-auto-load-safe-path ~/Code
+add-auto-load-safe-path ~/Work
 
 # Colored prompt
 set prompt \033[1;34m(gdb) \033[0m

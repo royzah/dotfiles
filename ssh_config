@@ -22,7 +22,8 @@ Host *
     ServerAliveInterval 30
     ServerAliveCountMax 5
 
-    # Security defaults
+    # Security defaults. IdentitiesOnly offers only configured keys; an agent
+    # key (e.g. Bitwarden) is used when its .pub is the IdentityFile.
     AddKeysToAgent yes
     IdentitiesOnly yes
 
@@ -46,7 +47,7 @@ Host github.com
     PreferredAuthentications publickey
 
 # --- Embedded / lab devices (throwaway host keys, fast timeouts) ---
-Host rpi-* board-* dev-*
+Host rpi-* board-* lab-*
     User root
     StrictHostKeyChecking accept-new
     UserKnownHostsFile /dev/null

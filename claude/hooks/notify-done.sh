@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Stop hook - desktop notification when Claude finishes, so long tasks
 # ping you while you're in another tmux window / workspace
+set -euo pipefail
 
 msg="Done in ${PWD##*/}"
 
