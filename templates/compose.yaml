@@ -34,24 +34,24 @@ services:
   # valkey:
   #   image: valkey/valkey:9
   #   ports:
-  #     - "6379:6379"
+  #     - "127.0.0.1:6379:6379"
 
   # nats:
   #   image: nats:2.14
   #   ports:
-  #     - "4222:4222"
-  #     - "8222:8222"
+  #     - "127.0.0.1:4222:4222"
+  #     - "127.0.0.1:8222:8222"
 
   # mosquitto:
   #   image: eclipse-mosquitto:2.1
   #   ports:
-  #     - "1883:1883"
+  #     - "127.0.0.1:1883:1883"
 
   # Single-node KRaft, no ZooKeeper since Kafka 4.x
   # kafka:
   #   image: apache/kafka:4.2.0
   #   ports:
-  #     - "9092:9092"
+  #     - "127.0.0.1:9092:9092"
 
   # S3-compatible object storage: MinIO was archived Apr 2026 - prefer
   # SeaweedFS or Garage for a maintained local S3.
@@ -59,7 +59,7 @@ services:
   #   image: chrislusf/seaweedfs
   #   command: server -s3
   #   ports:
-  #     - "8333:8333"
+  #     - "127.0.0.1:8333:8333"
 
 volumes:
   pgdata:
