@@ -177,8 +177,13 @@ echo "[systemd]"
 # Copied, not symlinked: systemd 249 (Ubuntu 22.04) breaks enable on linked units
 UNIT_DIR=~/.config/systemd/user
 mkdir -p "$UNIT_DIR"
-rm -f "$UNIT_DIR"/{claude-remote,tmux,backup}.service "$UNIT_DIR"/backup.timer
-cp -f "$DOTFILES"/systemd/tmux.service "$DOTFILES"/systemd/backup.service \
+# Was tmux.service, a name tmux-continuum disables on every tmux server start
+if grep -qs 'tmux default session' "$UNIT_DIR/tmux.service"; then
+  systemctl --user disable tmux.service > /dev/null 2>&1 || true
+  rm -f "$UNIT_DIR/tmux.service"
+fi
+rm -f "$UNIT_DIR"/{claude-remote,tmux-main,backup}.service "$UNIT_DIR"/backup.timer
+cp -f "$DOTFILES"/systemd/tmux-main.service "$DOTFILES"/systemd/backup.service \
   "$DOTFILES"/systemd/backup.timer "$UNIT_DIR"/
 if is_work; then
   echo "  copied: tmux, backup service+timer (claude-remote skipped on a work machine)"

@@ -363,7 +363,7 @@ enable_unit() {
     echo "  $1: failed to enable (systemctl --user status $1)"
   fi
 }
-enable_unit tmux.service
+enable_unit tmux-main.service
 # Units that would fail on every run until their one-time setup is done
 if [[ -f "$HOME/.secrets.env" ]] && grep -q RESTIC_REPOSITORY "$HOME/.secrets.env"; then
   enable_unit backup.timer
